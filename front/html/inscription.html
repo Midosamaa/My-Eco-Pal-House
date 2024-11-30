@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+<header class="header">
+    <h1>Inscription</h1>
+</header>
+
+<div class="container">
+    <div class="login-form"> <!-- Réutilisation de la classe "login-form" -->
+        <h2>Créer un nouveau compte</h2>
+
+        <!-- Affichage des messages d'erreur
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %} -->
+
+        <form method="POST">
+            <input type="text" name="prenom" placeholder="Prénom" required><br>
+            <input type="text" name="nom" placeholder="Nom" required><br>
+            <input type="text" name="adresse" placeholder="Adresse du logement" required><br>
+            <input type="tel" name="telephone" placeholder="Numéro de téléphone" required><br>
+            <input type="email" name="email" placeholder="Adresse email" required><br>
+            <input type="password" name="password" placeholder="Mot de passe" required><br>
+            <input type="password" name="confirm_password" placeholder="Confirmez le mot de passe" required><br>
+            <button type="submit">S'inscrire</button>
+        </form>
+
+        <div class="links">
+            <a href="login.html">Déjà un compte ? Connectez-vous</a>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2024 Mon Application</p>
+</footer>
+
+</body>
+</html>

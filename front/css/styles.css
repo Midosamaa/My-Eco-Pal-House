@@ -1,0 +1,103 @@
+/* Global Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+    max-width: 1200px;
+}
+
+header.header {
+    background: #00796b;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+header .nav {
+    margin-top: 1rem;
+}
+
+header .nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+header .nav a:hover,
+header .nav a.active {
+    background: #004d40;
+}
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 2rem 0;
+    background: #004d40;
+    color: #fff;
+}
+
+.hero h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Summary Section */
+.summary {
+    background: #fff;
+    padding: 2rem 0;
+}
+
+.summary .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.card {
+    text-align: center;
+    background: #f4f4f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.card i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #00796b;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+/* Charts Section */
+.charts {
+    padding: 2rem 0;
+    background: #e0f2f1;
+    text-align: center;
+}
+
+.charts canvas {
+    max-width: 100%;
+    margin: auto;
+}
+
+/* Footer */
+footer.footer {
+    text-align: center;
+    background: #00796b;
+    color: #fff;
+    padding: 1rem 0;
+}

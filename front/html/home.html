@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - Logement Éco-Responsable</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>Logement Éco-Responsable</h1>
+            <nav class="nav">
+                <a href="index.html" class="active">Accueil</a>
+                <a href="consommation.html">Consommation</a>
+                <a href="capteurs.html">Capteurs/Actionneurs</a>
+                <a href="economies.html">Économies</a>
+                <a href="configuration.html">Configuration</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2>Bienvenue dans votre logement intelligent</h2>
+            <p>Gérez votre consommation énergétique, surveillez vos capteurs, et réalisez des économies.</p>
+        </div>
+    </section>
+
+    <!-- Résumé Section -->
+    <section class="summary">
+        <div class="container grid">
+            <div class="card">
+                <i class="fas fa-bolt"></i>
+                <h3>Consommation Électrique</h3>
+                <p id="electricity-summary">Chargement...</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-tint"></i>
+                <h3>Consommation d'Eau</h3>
+                <p id="water-summary">Chargement...</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-leaf"></i>
+                <h3>Économies Réalisées</h3>
+                <p id="savings-summary">Chargement...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Graphique Section -->
+    <section class="charts">
+        <div class="container">
+            <h2>Graphique de Consommation</h2>
+            <canvas id="consumptionChart"></canvas>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Logement Éco-Responsable. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="scripts.js"></script>
+</body>
+</html>
