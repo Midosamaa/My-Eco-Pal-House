@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capteurs et Actionneurs</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Gestion des Capteurs et Actionneurs</h1>
+        <nav class="nav">
+            <a href="home.html">Accueil</a>
+            <a href="consommation.html">Consommation</a>
+            <a href="capteurs.html" class="active">Capteurs/Actionneurs</a>
+            <a href="economies.html">Économies</a>
+            <a href="configuration.html">Configuration</a>
+        </nav>
+    </header>
+
+    <section class="sensor-actuator">
+        <div class="container">
+            <h2>Capteurs</h2>
+
+            <!-- Liste des capteurs -->
+            <div class="sensor-list">
+                <div class="sensor">
+                    <h3>Capteur de Température</h3>
+                    <p>État : <span class="status on">Activé</span></p>
+                    <button class="btn-toggle">Désactiver</button>
+                </div>
+                <div class="sensor">
+                    <h3>Capteur de Humidité</h3>
+                    <p>État : <span class="status off">Désactivé</span></p>
+                    <button class="btn-toggle">Activer</button>
+                </div>
+                <div class="sensor">
+                    <h3>Capteur de CO2</h3>
+                    <p>État : <span class="status on">Activé</span></p>
+                    <button class="btn-toggle">Désactiver</button>
+                </div>
+            </div>
+
+            <h2>Actionneurs</h2>
+
+            <!-- Liste des actionneurs -->
+            <div class="actuator-list">
+                <div class="actuator">
+                    <h3>Chauffage</h3>
+                    <p>État : <span class="status on">Allumé</span></p>
+                    <button class="btn-toggle">Éteindre</button>
+                </div>
+                <div class="actuator">
+                    <h3>Climatisation</h3>
+                    <p>État : <span class="status off">Éteint</span></p>
+                    <button class="btn-toggle">Allumer</button>
+                </div>
+                <div class="actuator">
+                    <h3>Éclairage</h3>
+                    <p>État : <span class="status on">Allumé</span></p>
+                    <button class="btn-toggle">Éteindre</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2024 Système de Gestion de Consommation</p>
+    </footer>
+
+    <script>
+        // Script pour gérer l'activation et la désactivation des capteurs et actionneurs
+        const buttons = document.querySelectorAll('.btn-toggle');
+        
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const statusSpan = button.previousElementSibling.querySelector('.status');
+                const isActuator = button.closest('.actuator') !== null;  // Vérifie si c'est un actionneur
+                
+                if (isActuator) {
+                    // Pour les actionneurs (Chauffage, Climatisation, etc.)
+                    if (statusSpan.classList.contains('on')) {
+                        statusSpan.classList.remove('on');
+                        statusSpan.classList.add('off');
+                        statusSpan.textContent = 'Éteint';
+                        button.textContent = 'Allumer';
+                    } else {
+                        statusSpan.classList.remove('off');
+                        statusSpan.classList.add('on');
+                        statusSpan.textContent = 'Allumé';
+                        button.textContent = 'Éteindre';
+                    }
+                } else {
+                    // Pour les capteurs (Température, Humidité, etc.)
+                    if (statusSpan.classList.contains('on')) {
+                        statusSpan.classList.remove('on');
+                        statusSpan.classList.add('off');
+                        statusSpan.textContent = 'Désactivé';
+                        button.textContent = 'Activer';
+                    } else {
+                        statusSpan.classList.remove('off');
+                        statusSpan.classList.add('on');
+                        statusSpan.textContent = 'Activé';
+                        button.textContent = 'Désactiver';
+                    }
+                }
+            });
+        });
+    </script>
+    
+
+</body>
+</html>

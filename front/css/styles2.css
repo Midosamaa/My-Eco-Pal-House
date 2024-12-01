@@ -1,0 +1,311 @@
+/* Global Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+    max-width: 1200px;
+}
+
+/* Header */
+header.header {
+    background: #00796b;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+header .nav {
+    margin-top: 1rem;
+}
+
+header .nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+header .nav a:hover,
+header .nav a.active {
+    background: #004d40;
+}
+
+/* Filter Section */
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    margin: 2rem 0;
+    background-color: #ffffff;
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section label {
+    font-size: 1rem;
+    color: #333;
+}
+
+.filter-section select {
+    padding: 0.625rem;
+    border: 1px solid #ddd;
+    border-radius: 0.3125rem;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+.filter-section select:focus {
+    border-color: #00796b;
+}
+
+/* Group Configuration Section */
+.group-configuration {
+    margin: 2rem 0;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.group-configuration h3 {
+    color: #00796b;
+}
+
+#createGroupBtn {
+    background-color: #00796b;
+    color: white;
+    padding: 0.625rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#createGroupBtn:hover {
+    background-color: #004d40;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Activity Log */
+.activity-log {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.activity-log h3 {
+    color: #00796b;
+}
+
+#logList {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#logList li {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+/* Advanced Settings */
+.advanced-settings {
+    margin: 2rem 0;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.advanced-settings h3 {
+    color: #00796b;
+}
+
+#advancedSettingsForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#advancedSettingsForm label {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+#advancedSettingsForm input {
+    margin-bottom: 1rem;
+    padding: 0.625rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Alert Configuration */
+.alert-configuration {
+    background-color: #fff;
+    padding: 2rem;
+    margin-top: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.alert-configuration h3 {
+    color: #00796b;
+}
+
+#alertConfigForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#alertConfigForm select,
+#alertConfigForm input {
+    padding: 0.625rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Dashboard */
+.dashboard {
+    margin-top: 2rem;
+    text-align: center;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard h3 {
+    color: #00796b;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+}
+
+/* Schedule Configuration */
+.schedule-configuration {
+    background-color: #fff;
+    padding: 2rem;
+    margin-top: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-configuration h3 {
+    color: #00796b;
+}
+
+#scheduleForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#scheduleForm label {
+    margin-bottom: 0.5rem;
+}
+
+#scheduleForm input,
+#scheduleForm select {
+    padding: 0.625rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Export Section */
+.export-section {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+#exportConfigBtn {
+    background-color: #00796b;
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#exportConfigBtn:hover {
+    background-color: #004d40;
+}
+
+/* Footer */
+footer.footer {
+    text-align: center;
+    background: #00796b;
+    color: #fff;
+    padding: 1rem 0;
+}
+
+/* Media Queries for Responsive Design */
+@media (min-width: 768px) {
+    .filter-section {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .filter-section select {
+        width: 48%;
+    }
+}
+
+@media (min-width: 1024px) {
+    .filter-section select {
+        width: 32%;
+    }
+}

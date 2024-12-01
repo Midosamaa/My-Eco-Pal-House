@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Économies</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Suivi des Économies</h1>
+        <nav class="nav">
+            <a href="home.html">Accueil</a>
+            <a href="consommation.html">Consommations</a>
+            <a href="capteurs.html">Capteurs & Actionneurs</a>
+            <a href="economies.html" class="active">Économies</a>
+            <a href="configuration.html">Configuration</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <h2>Économies réalisées</h2>
+            <p>Voici un aperçu des économies réalisées sur vos consommations.</p>
+        </section>
+
+        <!-- Graphique combiné des économies -->
+        <section class="economy-chart">
+            <h3>Économies globales</h3>
+            <canvas id="economyChart"></canvas>
+        </section>
+
+
+        <!-- Filtre des économies -->
+        <div class="filters">
+            <h3>Filtrer les économies</h3>
+            <select id="economy-type" class="filter">
+                <option value="all">Toutes les économies</option>
+                <option value="electricity">Électricité</option>
+                <option value="water">Eau</option>
+                <option value="gas">Gaz</option>
+            </select>
+            
+            <select id="time-period" class="filter">
+                <option value="month">Ce mois-ci</option>
+                <option value="year">Cette année</option>
+                <option value="all-time">Depuis la création</option>
+            </select>
+            
+            <button id="apply-filters">Appliquer</button>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="economyChart"></canvas>
+        </div>
+        
+
+        <section class="economy-tips">
+            <h3>Conseils pour économiser encore plus</h3>
+            <ul>
+                <li>Éteindre les appareils lorsque vous ne les utilisez pas.</li>
+                <li>Utiliser les capteurs de température pour éviter les gaspillages d'énergie.</li>
+                <li>Optimiser l'utilisation de l'eau grâce à des horaires de consommation efficaces.</li>
+            </ul>
+        </section>
+
+        <section class="economy-table">
+            <h3>Tableau des économies</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Mois</th>
+                        <th>Économies réalisées</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Énergie</td>
+                        <td>Novembre 2024</td>
+                        <td>100 kWh</td>
+                    </tr>
+                    <tr>
+                        <td>Eau</td>
+                        <td>Novembre 2024</td>
+                        <td>500 Litres</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+
+
+    <footer class="footer">
+        <p>© 2024 Mon Site. Tous droits réservés.</p>
+    </footer>
+
+    <!-- Script pour les graphiques -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Données de consommation initiales, divisées par mois et année
+        const economyData = {
+            electricity: {
+                2023: [120, 110, 130, 115, 140, 135, 100, 90, 110, 120, 125, 140],
+                2024: [130, 120, 125, 135, 145, 150, 110, 100, 120, 130, 140, 150]
+            },
+            water: {
+                2023: [30, 25, 28, 22, 33, 30, 29, 26, 30, 28, 31, 32],
+                2024: [32, 30, 29, 34, 35, 36, 29, 28, 32, 30, 33, 31]
+            },
+            gas: {
+                2023: [15, 18, 12, 14, 16, 17, 14, 13, 15, 18, 20, 19],
+                2024: [19, 17, 18, 20, 22, 23, 21, 19, 18, 20, 21, 22]
+            }
+        };
+    
+        // Labels des mois
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+        // Initialisation du graphique avec toutes les économies de janvier 2024
+        const chartData = {
+            labels: months,
+            datasets: [{
+                label: 'Économies réalisées - Électricité',
+                data: economyData.electricity[2024], // Par défaut, données d'électricité de 2024
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+    
+        // Configuration du graphique
+        const config = {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+    
+        const ctx = document.getElementById('economyChart').getContext('2d');
+        const economyChart = new Chart(ctx, config);
+    
+        // Fonction pour appliquer les filtres et mettre à jour le graphique
+        document.getElementById('apply-filters').addEventListener('click', () => {
+            const selectedType = document.getElementById('economy-type').value;
+            const selectedPeriod = document.getElementById('time-period').value;
+    
+            let newData = [];
+            let selectedYear = 2024; // Par défaut, on sélectionne l'année 2024
+    
+            // Si l'utilisateur sélectionne un type d'économie
+            if (selectedType === 'electricity') {
+                newData = economyData.electricity;
+            } else if (selectedType === 'water') {
+                newData = economyData.water;
+            } else if (selectedType === 'gas') {
+                newData = economyData.gas;
+            } else {
+                newData = [...economyData.electricity, ...economyData.water, ...economyData.gas]; // Toutes les économies
+            }
+    
+            // Filtrage en fonction de la période sélectionnée
+            if (selectedPeriod === 'year') {
+                // Filtrer pour l'année entière
+                newData = newData[selectedYear];
+                chartData.labels = months; // Afficher tous les mois
+            } else if (selectedPeriod === 'month') {
+                // Filtrer pour un mois spécifique (par exemple, janvier 2024)
+                newData = [newData[selectedYear][0]]; // Exemple : juste les économies du premier mois
+                chartData.labels = ['Jan']; // Afficher seulement janvier
+            } else {
+                // Si "Depuis la création" est sélectionné, afficher toutes les économies
+                newData = newData.flat(); // Rassembler toutes les économies des différents types
+                chartData.labels = months; // Afficher tous les mois
+            }
+    
+            // Mise à jour des données du graphique
+            economyChart.data.datasets[0].data = newData;
+            economyChart.update();
+        });
+    </script>
+    
+
+</body>
+</html>

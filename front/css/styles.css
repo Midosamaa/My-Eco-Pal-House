@@ -13,6 +13,7 @@ body {
     max-width: 1200px;
 }
 
+/* Header */
 header.header {
     background: #00796b;
     color: #fff;
@@ -49,6 +50,86 @@ header .nav a.active {
 .hero h2 {
     font-size: 2rem;
     margin-bottom: 1rem;
+}
+
+/* Login Form Styles */
+.login-form {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.login-form h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #00796b;
+}
+
+/* Input Fields */
+.login-form input[type="text"],
+.login-form input[type="password"],
+.login-form input[type="tel"],
+.login-form input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.login-form input[type="checkbox"] {
+    margin-top: 10px;
+}
+
+/* Button */
+.login-form button {
+    background-color: #00796b;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+}
+
+.login-form button:hover {
+    background-color: #004d40;
+}
+
+/* Error Message */
+.alert {
+    color: white;
+    background-color: #d32f2f;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.alert p {
+    margin: 0;
+}
+
+/* Links */
+.login-form .links {
+    margin-top: 15px;
+}
+
+.login-form .links a {
+    color: #00796b;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.login-form .links a:hover {
+    color: #004d40;
 }
 
 /* Summary Section */
@@ -91,6 +172,7 @@ header .nav a.active {
 
 .charts canvas {
     max-width: 100%;
+    height: auto;
     margin: auto;
 }
 
@@ -100,4 +182,709 @@ footer.footer {
     background: #00796b;
     color: #fff;
     padding: 1rem 0;
+}
+
+/* Capteurs et Actionneurs */
+.sensor-actuator {
+    background: #f9f9f9;
+    padding: 2rem 0;
+}
+
+.sensor-actuator h2 {
+    font-size: 2rem;
+    color: #00796b;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.sensor-list, .actuator-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.sensor, .actuator {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    width: 280px;
+    text-align: center;
+}
+
+.sensor h3, .actuator h3 {
+    font-size: 1.2rem;
+    color: #00796b;
+}
+
+.status {
+    font-weight: bold;
+}
+
+.status.on {
+    color: #388e3c;
+}
+
+.status.off {
+    color: #d32f2f;
+}
+
+.btn-toggle {
+    background-color: #00796b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.3125rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 1rem;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-transform: uppercase;
+}
+
+.btn-toggle:hover {
+    background-color: #004d40;
+    transform: scale(1.05);
+}
+
+.consumption-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.consumption-table th, .consumption-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.consumption-table th {
+    background-color: #f4f4f4;
+}
+
+/* Tips Section */
+.consumption-tips {
+    margin-top: 40px;
+    background-color: #f9f9f9;
+    padding: 20px;
+}
+
+.consumption-tips ul {
+    list-style-type: disc;
+    margin-left: 20px;
+}
+
+/* Filters Section */
+.filters {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+    text-align: center;
+}
+
+.filters h2 {
+    font-size: 1.5rem;
+    color: #00796b;
+    margin-bottom: 1.5rem;
+}
+
+/* Labels */
+.filters label {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+    text-align: left;
+}
+
+/* Select Fields */
+.filters select {
+    width: 100%;
+    padding: 0.625rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.3125rem;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+    color: #333;
+    transition: border-color 0.3s ease;
+}
+
+.filters select:focus {
+    border-color: #00796b;
+    outline: none;
+}
+
+/* Apply Button */
+.filters button {
+    background-color: #00796b;
+    color: white;
+    padding: 0.625rem 1rem;
+    border: none;
+    border-radius: 0.3125rem;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-transform: uppercase;
+}
+
+.filters button:hover {
+    background-color: #004d40;
+    transform: scale(1.05);
+}
+
+/* Media Queries for Responsive Design */
+@media (min-width: 768px) {
+    .filters {
+        max-width: 600px;
+        padding: 2rem;
+    }
+
+    .filters h2 {
+        font-size: 2rem;
+    }
+
+    .filters select {
+        font-size: 1.1rem;
+        padding: 0.75rem;
+    }
+
+    .filters button {
+        font-size: 1.2rem;
+        width: auto;
+        padding: 0.75rem 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .filters {
+        max-width: 800px;
+    }
+
+    .filters h2 {
+        font-size: 2.2rem;
+    }
+}
+
+/* Economies Section */
+.economy-summary {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+.economy-item {
+    width: 45%;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.economy-item h3 {
+    color: #00796b;
+}
+
+.savings {
+    font-size: 1.2rem;
+    color: #333;
+    margin: 1rem 0;
+}
+
+.economy-tips {
+    background: #e0f2f1;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+}
+
+.economy-tips h3 {
+    color: #00796b;
+}
+
+.economy-tips ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.economy-tips ul li {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+/* Economy Chart Section */
+.economy-chart {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.economy-chart canvas {
+    max-width: 100%;
+    height: auto;
+}
+.economy-table {
+    margin-top: 2rem;
+}
+
+.economy-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.economy-table th, .economy-table td {
+    padding: 1rem;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.economy-table th {
+    background-color: #00796b;
+    color: #fff;
+}
+
+.economy-table tr:nth-child(even) {
+    background-color: #f4f4f9;
+}
+
+/* Economy Filters Section */
+.economy-filters {
+    background-color: #fff;
+    padding: 2rem;
+    margin-top: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.economy-filters h2 {
+    font-size: 1.5rem;
+    color: #00796b;
+    margin-bottom: 1.5rem;
+}
+
+/* Filter Section */
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    margin: 2rem 0;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section label {
+    font-size: 1rem;
+    color: #333;
+}
+
+.filter-section select {
+    padding: 0.625rem;
+    border: 1px solid #ddd;
+    border-radius: 0.3125rem;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+.filter-section select:focus {
+    border-color: #00796b;
+}
+
+.filter-group {
+    margin-bottom: 1rem;
+}
+
+.filter-group label {
+    font-size: 1rem;
+    color: #333;
+}
+
+.filter-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.btn-apply {
+    background-color: #00796b;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-apply:hover {
+    background-color: #004d40;
+}
+
+
+
+/* Media Queries for Economy Section */
+@media (min-width: 768px) {
+    .economy-item {
+        width: 48%;
+    }
+
+    .economy-tips ul li {
+        font-size: 1.1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .economy-item {
+        width: 30%;
+    }
+}
+
+
+/* Global Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+    max-width: 1200px;
+}
+
+/* Header */
+header.header {
+    background: #00796b;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+header .nav {
+    margin-top: 1rem;
+}
+
+header .nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+header .nav a:hover,
+header .nav a.active {
+    background: #004d40;
+}
+
+/* Filter Section */
+.filter-section {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+    text-align: center;
+}
+
+.filter-section label {
+    font-size: 1rem;
+    color: #333;
+}
+
+.filter-section select {
+    padding: 0.625rem;
+    border: 1px solid #ddd;
+    border-radius: 0.3125rem;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+.filter-section select:focus {
+    border-color: #00796b;
+}
+
+/* Group Configuration Section */
+.group-configuration {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+    text-align: center;
+}
+
+.group-configuration h3 {
+    color: #00796b;
+}
+
+#createGroupBtn {
+    background-color: #00796b;
+    color: white;
+    padding: 0.625rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#createGroupBtn:hover {
+    background-color: #004d40;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    align-items: center;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Activity Log */
+.activity-log {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+    text-align: center;
+}
+
+.activity-log h3 {
+    color: #00796b;
+}
+
+#logList {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#logList li {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+/* Advanced Settings */
+.advanced-settings {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+    text-align: center;
+}
+
+.advanced-settings h3 {
+    color: #00796b;
+}
+
+#advancedSettingsForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#advancedSettingsForm label {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+#advancedSettingsForm input {
+    margin-bottom: 1rem;
+    padding: 0.625rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Alert Configuration */
+.alert-configuration {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+    text-align: center;
+}
+
+.alert-configuration h3 {
+    color: #00796b;
+}
+
+#alertConfigForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#alertConfigForm select,
+#alertConfigForm input {
+    padding: 0.625rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Dashboard */
+.dashboard {
+    margin-top: 2rem;
+    text-align: center;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard h3 {
+    color: #00796b;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+}
+
+/* Schedule Configuration */
+.schedule-configuration {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+    text-align: center;
+}
+
+.schedule-configuration h3 {
+    color: #00796b;
+}
+
+#scheduleForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#scheduleForm label {
+    margin-bottom: 0.5rem;
+}
+
+#scheduleForm input,
+#scheduleForm select {
+    padding: 0.625rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Export Section */
+.export-section {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+#exportConfigBtn {
+    background-color: #00796b;
+    color: white;
+    padding: 1rem 2rem;
+    margin-bottom: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#exportConfigBtn:hover {
+    background-color: #004d40;
+}
+
+/* Footer */
+footer.footer {
+    text-align: center;
+    background: #00796b;
+    color: #fff;
+    padding: 1rem 0;
+}
+
+/* Media Queries for Responsive Design */
+@media (min-width: 768px) {
+    .filter-section {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .filter-section select {
+        width: 48%;
+    }
+}
+
+@media (min-width: 1024px) {
+    .filter-section select {
+        width: 32%;
+    }
+}
+
+.submit {
+    background-color: #00796b;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: fit-content;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+    align-self: center;
 }

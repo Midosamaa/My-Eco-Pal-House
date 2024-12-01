@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>Logement Éco-Responsable</h1>
+            <nav class="nav">
+                <a href="home.html">Accueil</a>
+                <a href="consommation.html">Consommation</a>
+                <a href="capteurs.html">Capteurs/Actionneurs</a>
+                <a href="economies.html">Économies</a>
+                <a href="configuration.html" class="active">Configuration</a>
+            </nav>
+        </div>
+    </header>
+
+   <!-- Section de filtrage et recherche -->
+   <section class="filter-section">
+        <label for="statusFilter">Filtrer par statut :</label>
+        <select id="statusFilter">
+            <option value="all">Tous</option>
+            <option value="active">Actifs</option>
+            <option value="inactive">Inactifs</option>
+        </select>
+
+        <label for="typeFilter">Filtrer par type :</label>
+        <select id="typeFilter">
+            <option value="all">Tous</option>
+            <option value="temperature">Température</option>
+            <option value="humidity">Humidité</option>
+            <option value="motion">Mouvement</option>
+        </select>
+    </section>
+
+    <!-- Section pour gérer les groupes de capteurs/actionneurs -->
+    <section class="group-configuration">
+        <h3>Gérer les Groupes</h3>
+        <button id="createGroupBtn">Créer un Groupe</button>
+        
+        <!-- Modal pour créer un groupe -->
+        <div id="createGroupModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Créer un Nouveau Groupe</h3>
+                <form id="createGroupForm">
+                    <label for="groupName">Nom du Groupe :</label>
+                    <input type="text" id="groupName" required>
+
+                    <label for="groupDevices">Ajouter des Appareils au Groupe :</label>
+                    <select id="groupDevices" multiple>
+                        <!-- Liste des appareils disponibles -->
+                        <option value="sensor1">Capteur 1</option>
+                        <option value="sensor2">Capteur 2</option>
+                    </select>
+
+                    <button class="submit">Créer le Groupe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Historique des modifications -->
+    <section class="activity-log">
+        <h3>Historique des Modifications</h3>
+        <ul id="logList">
+            <li>Modification du capteur "Température 1" - 30/11/2024 14:35</li>
+            <li>Suppression de l'actionneur "Chauffage" - 30/11/2024 14:40</li>
+        </ul>
+    </section>
+
+    <!-- Paramètres avancés pour capteurs -->
+    <section class="advanced-settings">
+        <h3>Paramètres Avancés</h3>
+        <form id="advancedSettingsForm">
+            <label for="sensorThreshold">Seuil d'Alerte Température :</label>
+            <input type="number" id="sensorThreshold" placeholder="Ex : 30" required>
+
+            <label for="sensorDelay">Délai d'Activation (en secondes) :</label>
+            <input type="number" id="sensorDelay" placeholder="Ex : 10" required>
+
+            <button class="submit">Appliquer les Paramètres</button>
+        </form>
+    </section>
+
+    <!-- Gestion des alertes -->
+    <section class="alert-configuration">
+        <h3>Configurer les Alertes</h3>
+        <form id="alertConfigForm">
+            <label for="alertType">Type d'Alerte :</label>
+            <select id="alertType">
+                <option value="email">Email</option>
+                <option value="sms">SMS</option>
+                <option value="push">Notification Push</option>
+            </select>
+
+            <label for="alertThreshold">Seuil d'Alerte :</label>
+            <input type="number" id="alertThreshold" required>
+
+            <button class="submit">Configurer l'Alerte</button>
+        </form>
+    </section>
+
+    <!-- Planification des actionneurs -->
+    <section class="schedule-configuration">
+        <h3>Planification des Actionneurs</h3>
+        <form id="scheduleForm">
+            <label for="device">Sélectionnez un Appareil :</label>
+            <select id="device">
+                <option value="light1">Lumière 1</option>
+                <option value="heater1">Chauffage 1</option>
+            </select>
+
+            <label for="startTime">Heure de Début :</label>
+            <input type="time" id="startTime" required>
+
+            <label for="endTime">Heure de Fin :</label>
+            <input type="time" id="endTime" required>
+
+            <button class="submit">Planifier</button>
+        </form>
+    </section>
+
+    <!-- Exportation de la configuration -->
+    <section class="export-section">
+        <button id="exportConfigBtn">Exporter la Configuration</button>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Logement Éco-Responsable. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script>
+    // Configuration de Chart.js pour le tableau de bord
+    var ctx = document.getElementById('sensorChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'], // Exemple de labels
+            datasets: [{
+                label: 'Température',
+                data: [20, 22, 24, 23, 25], // Exemple de données
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Modal pour la gestion des groupes
+    var modal = document.getElementById("createGroupModal");
+    var btn = document.getElementById("createGroupBtn");
+    var span = document.getElementsByClassName("close")[0];
+
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    </script>
+</body>
+</html>

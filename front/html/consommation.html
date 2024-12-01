@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consommations</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>Suivi des Consommations</h1>
+        <nav class="nav">
+            <a href="home.html">Accueil</a>
+            <a href="consommation.html" class="active">Consommation</a>
+            <a href="capteurs.html">Capteurs/Actionneurs</a>
+            <a href="economies.html">Économies</a>
+            <a href="configuration.html">Configuration</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <h2>Consommations récentes</h2>
+            <p>Voici un aperçu de vos consommations récentes.</p>
+        </section>
+
+        <!-- Graphique des consommations -->
+        <section class="charts">
+            <h3>Consommation globale</h3>
+            <canvas id="consommationChart"></canvas>
+        </section>
+
+        <!-- Filtre des consommations -->
+        <section class="filters">
+            <h3>Filtrer les consommations</h3>
+            <select id="consumption-type" class="filter">
+                <option value="all">Toutes les consommations</option>
+                <option value="electricity">Électricité</option>
+                <option value="water">Eau</option>
+                <option value="gas">Gaz</option>
+            </select>
+            
+            <select id="time-period" class="filter">
+                <option value="month">Ce mois-ci</option>
+                <option value="year">Cette année</option>
+                <option value="all-time">Depuis la création</option>
+            </select>
+            
+            <button id="apply-filters">Appliquer</button>
+        </section>
+
+        <section class="consumption-tips">
+            <h3>Conseils pour réduire la consommation</h3>
+            <ul>
+                <li>Éteindre les appareils inutilisés pour économiser de l'énergie.</li>
+                <li>Optimiser l'utilisation de l'eau avec des équipements économes.</li>
+                <li>Suivre les conseils de vos capteurs pour réduire la consommation.</li>
+            </ul>
+        </section>
+
+        <section class="consumption-table">
+            <h3>Tableau des consommations</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Mois</th>
+                        <th>Consommation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Électricité</td>
+                        <td>Novembre 2024</td>
+                        <td>250 kWh</td>
+                    </tr>
+                    <tr>
+                        <td>Eau</td>
+                        <td>Novembre 2024</td>
+                        <td>600 Litres</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p>© 2024 Mon Application. Tous droits réservés.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Données de consommation initiales
+        const consumptionData = {
+            electricity: {
+                2023: [120, 130, 150, 145, 160, 155, 170, 180, 185, 190, 200, 210],
+                2024: [125, 135, 160, 150, 165, 160, 180, 190, 200, 205, 215, 220]
+            },
+            water: {
+                2023: [400, 350, 300, 250, 450, 500, 480, 460, 430, 420, 480, 490],
+                2024: [450, 400, 380, 370, 460, 510, 500, 490, 470, 460, 500, 510]
+            },
+            gas: {
+                2023: [120, 110, 140, 130, 150, 160, 170, 165, 155, 160, 170, 180],
+                2024: [130, 120, 140, 145, 155, 160, 175, 170, 160, 155, 165, 170]
+            }
+        };
+
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        // Initialisation du graphique
+        const chartData = {
+            labels: months,
+            datasets: [{
+                label: 'Consommation Électricité',
+                data: consumptionData.electricity[2024],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const ctx = document.getElementById('consommationChart').getContext('2d');
+        const consumptionChart = new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Appliquer les filtres
+        document.getElementById('apply-filters').addEventListener('click', () => {
+            const selectedType = document.getElementById('consumption-type').value;
+            const selectedPeriod = document.getElementById('time-period').value;
+
+            let newData = [];
+            let selectedYear = 2024;
+
+            // Sélectionner les données appropriées selon le type de consommation
+            if (selectedType === 'electricity') {
+                newData = consumptionData.electricity;
+            } else if (selectedType === 'water') {
+                newData = consumptionData.water;
+            } else if (selectedType === 'gas') {
+                newData = consumptionData.gas;
+            } else {
+                newData = [...consumptionData.electricity, ...consumptionData.water, ...consumptionData.gas];
+            }
+
+            // Filtrage en fonction de la période
+            if (selectedPeriod === 'year') {
+                newData = newData[selectedYear];
+                chartData.labels = months;
+            } else if (selectedPeriod === 'month') {
+                newData = [newData[selectedYear][0]]; 
+                chartData.labels = ['Jan']; 
+            } else {
+                newData = newData.flat();
+                chartData.labels = months;
+            }
+
+            // Mise à jour du graphique
+            consumptionChart.data.datasets[0].data = newData;
+            consumptionChart.update();
+        });
+    </script>
+</body>
+</html>
