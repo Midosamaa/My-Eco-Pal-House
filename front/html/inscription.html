@@ -16,30 +16,19 @@
     <div class="login-form"> <!-- Réutilisation de la classe "login-form" -->
         <h2>Créer un nouveau compte</h2>
 
-        <!-- Affichage des messages d'erreur
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="alert">
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %} -->
-
-        <form method="POST">
+        <form action="{{ url_for('inscription') }}" id="signupForm" method="POST">
             <input type="text" name="prenom" placeholder="Prénom" required><br>
             <input type="text" name="nom" placeholder="Nom" required><br>
             <input type="text" name="adresse" placeholder="Adresse du logement" required><br>
             <input type="tel" name="telephone" placeholder="Numéro de téléphone" required><br>
             <input type="email" name="email" placeholder="Adresse email" required><br>
-            <input type="password" name="password" placeholder="Mot de passe" required><br>
-            <input type="password" name="confirm_password" placeholder="Confirmez le mot de passe" required><br>
+            <input type="password" name="password" id="password" placeholder="Mot de passe" required><br>
+            <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirmez le mot de passe" required><br>
             <button type="submit">S'inscrire</button>
         </form>
-
+        
         <div class="links">
-            <a href="login.html">Déjà un compte ? Connectez-vous</a>
+            <a href="{{ url_for('home_page') }}">Déjà un compte ? Connectez-vous</a>
         </div>
     </div>
 </div>
@@ -47,6 +36,21 @@
 <footer class="footer">
     <p>&copy; 2024 My Eco Pal House</p>
 </footer>
+
+<script>
+    const form = document.getElementById("signupForm");
+
+    form.addEventListener("submit", function (event) {
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirm_password").value;
+
+        // Vérification que les mots de passe correspondent
+        if (password !== confirmPassword) {
+            event.preventDefault();  // Empêche l'envoi du formulaire
+            alert("Les mots de passe ne correspondent pas.");
+        }
+    });
+</script>
 
 </body>
 </html>

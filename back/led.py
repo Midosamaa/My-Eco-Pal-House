@@ -1,12 +1,22 @@
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template_string, render_template
 from flask_cors import CORS
 import sqlite3
 from datetime import datetime
 import paho.mqtt.client as mqtt  # Import de la bibliothèque MQTT
 import json  # Pour traiter les messages JSON
+import hashlib
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="../front/html", static_folder="../front/css")
 CORS(app)
+
+@app.route('/')
+def home_page():
+    return render_template('login.html')
+
+@app.route('/inscription')
+def inscription_page():
+    return render_template('inscription.html')
+
 
 # Fonction de connexion à la base de données
 def connect_db():
@@ -15,7 +25,7 @@ def connect_db():
     return conn
 
 # Configuration MQTT
-MQTT_BROKER = "192.168.1.17" #"192.168.6.254"  # Adresse de ton broker MQTT
+MQTT_BROKER = "192.168.1.17"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
 MQTT_PORT = 1883  # Port par défaut de MQTT
 MQTT_TOPIC = "maison/capteurs/dht11"  # Topic pour recevoir les données de température et d'humidité
 LED_TOPIC = "maison/led"  # Topic pour envoyer des commandes pour allumer ou éteindre la LED
@@ -69,6 +79,50 @@ mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
 
 # Démarrer un thread pour gérer la boucle MQTT
 mqtt_client.loop_start()
+
+@app.route('/inscription', methods=['POST'])
+def inscription():
+    # Récupérer les données du formulaire envoyé depuis l'HTML
+    prenom = request.form.get('prenom')
+    nom = request.form.get('nom')
+    adresse = request.form.get('adresse')
+    telephone = request.form.get('telephone')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+
+    # Afficher les données reçues pour déboguer
+    print(f"Prénom: {prenom}, Nom: {nom}, Adresse: {adresse}, Téléphone: {telephone}, Email: {email}")
+    
+    # Hacher le mot de passe (utilise une méthode comme bcrypt ou hashlib)
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
+
+    # Connexion à la base de données et insertion de l'utilisateur
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        
+        # Insérer un nouveau logement
+        cursor.execute('''
+            INSERT INTO logement (IP, adress, num_tel)
+            VALUES (?, ?, ?)
+        ''', ('192.168.1.1', adresse, telephone))
+        logement_id = cursor.lastrowid
+        
+        # Insérer l'utilisateur dans la table "users"
+        cursor.execute('''
+            INSERT INTO users (name, logement_id, password_hash)
+            VALUES (?, ?, ?)
+        ''', (f"{prenom} {nom}", logement_id, password_hash))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({"message": "Inscription réussie"}), 201
+    
+    except Exception as e:
+        print(f"Erreur lors de l'insertion: {e}")
+        return jsonify({"error": "Erreur lors de l'inscription"}), 500
 
 # Route GET pour récupérer toutes les mesures
 @app.route('/mesures', methods=['GET'])
