@@ -19,6 +19,13 @@
                 <a href="economies.html">Économies</a>
                 <a href="configuration.html" class="active">Configuration</a>
             </nav>
+            <div class="account-menu">
+                <img src="../../images/account-icon2.png" alt="Compte" class="account-icon">
+                <ul class="dropdown-menu">
+                    <li><a href="change-password.html">Changer de mot de passe</a></li>
+                    <li><a href="login.html">Se déconnecter</a></li>
+                </ul>
+            </div>
         </div>
     </header>
 
@@ -41,31 +48,77 @@
     </section>
 
     <!-- Section pour gérer les groupes de capteurs/actionneurs -->
-    <section class="group-configuration">
-        <h3>Gérer les Groupes</h3>
-        <button id="createGroupBtn">Créer un Groupe</button>
-        
-        <!-- Modal pour créer un groupe -->
-        <div id="createGroupModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h3>Créer un Nouveau Groupe</h3>
-                <form id="createGroupForm">
-                    <label for="groupName">Nom du Groupe :</label>
-                    <input type="text" id="groupName" required>
-
-                    <label for="groupDevices">Ajouter des Appareils au Groupe :</label>
-                    <select id="groupDevices" multiple>
-                        <!-- Liste des appareils disponibles -->
-                        <option value="sensor1">Capteur 1</option>
-                        <option value="sensor2">Capteur 2</option>
-                    </select>
-
-                    <button class="submit">Créer le Groupe</button>
-                </form>
+    <section class="sensor-actuators">
+        <h3>Gérer les Capteurs et Actionneurs</h3>
+    
+        <!-- Bouton pour ajouter un nouveau capteur/actionneur -->
+        <button id="addDeviceBtn" class="btn">Ajouter un Capteur/Actionneur</button>
+    
+        <!-- Tableau de gestion des capteurs/actionneurs -->
+        <div class="device-tables">
+            <!-- Exemple de tableau pour une chambre -->
+            <div class="room">
+                <h4>Chambre 1</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Type</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Température 1</td>
+                            <td>Capteur</td>
+                            <td>Actif</td>
+                            <td>
+                                <button class="btn btn-edit">Renommer</button>
+                                <button class="btn btn-delete">Supprimer</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Chauffage</td>
+                            <td>Actionneur</td>
+                            <td>Inactif</td>
+                            <td>
+                                <button class="btn btn-edit">Renommer</button>
+                                <button class="btn btn-delete">Supprimer</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+    
+            <!-- Ajouter d'autres chambres ici -->
+            <div class="room">
+                <h4>Salon</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Type</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Motion Detector</td>
+                            <td>Capteur</td>
+                            <td>Actif</td>
+                            <td>
+                                <button class="btn btn-edit">Renommer</button>
+                                <button class="btn btn-delete">Supprimer</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </section>
+    
 
     <!-- Historique des modifications -->
     <section class="activity-log">
@@ -75,7 +128,6 @@
             <li>Suppression de l'actionneur "Chauffage" - 30/11/2024 14:40</li>
         </ul>
     </section>
-
     <!-- Paramètres avancés pour capteurs -->
     <section class="advanced-settings">
         <h3>Paramètres Avancés</h3>
@@ -136,7 +188,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Logement Éco-Responsable. Tous droits réservés.</p>
+            <p>&copy; 2024 My Eco Pal House.</p>
         </div>
     </footer>
 

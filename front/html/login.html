@@ -27,13 +27,20 @@
                 {% endif %}
             {% endwith %} -->
 
-            <form method="POST">
+            <form method="POST" onsubmit="return handleLogin();">
                 <input type="text" name="username" placeholder="Nom d'utilisateur" required><br>
                 <input type="password" name="password" placeholder="Mot de passe" required><br>
                 <input type="checkbox" name="remember_me"> Se souvenir de moi<br>
                 <button type="submit">Se connecter</button>
             </form>
-
+            
+            <script>
+                function handleLogin() {
+                    // Vous pouvez ajouter une validation ici si nécessaire.
+                    window.location.href = "home.html"; // Redirection vers la page souhaitée.
+                    return false; // Empêche l'envoi réel du formulaire.
+                }
+            </script>
             <div class="links">
                 <a href="#">Mot de passe oublié ?</a> | 
                 <a href="inscription.html">Créer un compte</a><br>
@@ -42,7 +49,7 @@
     </div>
 
     <footer class="footer">
-        <p>&copy; 2024 Eco Pal House</p>
+        <p>&copy; 2024 My Eco Pal House</p>
     </footer>
 
 </body>

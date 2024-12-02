@@ -16,6 +16,13 @@
             <a href="economies.html" class="active">Économies</a>
             <a href="configuration.html">Configuration</a>
         </nav>
+        <div class="account-menu">
+            <img src="../../images/account-icon2.png" alt="Compte" class="account-icon">
+            <ul class="dropdown-menu">
+                <li><a href="change-password.html">Changer de mot de passe</a></li>
+                <li><a href="login.html">Se déconnecter</a></li>
+            </ul>
+        </div>
     </header>
 
     <div class="container">
@@ -25,7 +32,7 @@
         </section>
 
         <!-- Graphique combiné des économies -->
-        <section class="economy-chart">
+        <section class="charts" class="economy-chart">
             <h3>Économies globales</h3>
             <canvas id="economyChart"></canvas>
         </section>
@@ -50,9 +57,9 @@
             <button id="apply-filters">Appliquer</button>
         </div>
         
-        <div class="chart-container">
+        <!-- <div class="chart-container">
             <canvas id="economyChart"></canvas>
-        </div>
+        </div> -->
         
 
         <section class="economy-tips">
@@ -93,7 +100,7 @@
 
 
     <footer class="footer">
-        <p>© 2024 Mon Site. Tous droits réservés.</p>
+        <p>© 2024 My Eco Pal House.</p>
     </footer>
 
     <!-- Script pour les graphiques -->

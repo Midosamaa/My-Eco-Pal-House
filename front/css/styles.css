@@ -19,6 +19,8 @@ header.header {
     color: #fff;
     padding: 1rem 0;
     text-align: center;
+    position:sticky;
+    top: 0;
 }
 
 header .nav {
@@ -166,12 +168,13 @@ header .nav a.active {
 /* Charts Section */
 .charts {
     padding: 2rem 0;
-    background: #e0f2f1;
+    background: #fff;
     text-align: center;
 }
 
 .charts canvas {
     max-width: 100%;
+    width: 50%;
     height: auto;
     margin: auto;
 }
@@ -262,19 +265,8 @@ footer.footer {
 }
 
 .consumption-table th {
-    background-color: #f4f4f4;
-}
-
-/* Tips Section */
-.consumption-tips {
-    margin-top: 40px;
-    background-color: #f9f9f9;
-    padding: 20px;
-}
-
-.consumption-tips ul {
-    list-style-type: disc;
-    margin-left: 20px;
+    background-color: #00796b;
+    color: #fff;
 }
 
 /* Filters Section */
@@ -420,6 +412,27 @@ footer.footer {
     font-size: 1rem;
 }
 
+.consumption-tips {
+    background: #e0f2f1;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+}
+
+.consumption-tips h3 {
+    color: #00796b;
+}
+
+.consumption-tips ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.consumption-tips ul li {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
 /* Economy Chart Section */
 .economy-chart {
     margin-top: 2rem;
@@ -430,10 +443,27 @@ footer.footer {
     text-align: center;
 }
 
-.economy-chart canvas {
+.economy-chart, canvas {
     max-width: 100%;
+    width:50%;
     height: auto;
 }
+
+.consumption-chart {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.consumption-chart, canvas {
+    max-width: 100%;
+    width:50%;
+    height: auto;
+}
+
 .economy-table {
     margin-top: 2rem;
 }
@@ -887,4 +917,199 @@ footer.footer {
     font-size: 1.1rem;
     transition: background-color 0.3s ease;
     align-self: center;
+}
+
+/* Positionnement de l'icône du compte */
+.account-menu {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: inline-block;
+}
+
+.account-icon {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 50%; /* Pour rendre l'icône circulaire */
+    border: 2px solid #ccc;
+    transition: border-color 0.3s;
+}
+
+.account-icon:hover {
+    border-color: #16a085;
+}
+
+/* Menu déroulant */
+.dropdown-menu {
+    display: none; /* Masqué par défaut */
+    position: absolute;
+    width: 10rem;
+    right: 0;
+    top: 50px;
+    background-color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 10;
+}
+
+.dropdown-menu li {
+    border-bottom: 1px solid #ddd;
+}
+
+.dropdown-menu li:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #333;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.dropdown-menu a:hover {
+    background-color: #16a085;
+    color: white;
+}
+
+/* Affichage du menu au survol */
+.account-menu:hover .dropdown-menu {
+    display: block;
+}
+
+.change-password-section {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.change-password-section h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-group input:focus {
+    border-color: #16a085;
+    outline: none;
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 1rem;
+    color: white;
+    background-color: #16a085;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #12876f;
+}
+
+.sensor-actuators {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin: 20px auto;
+}
+
+.sensor-actuators h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.room {
+    margin-bottom: 30px;
+}
+
+.room h4 {
+    margin-bottom: 10px;
+    color: #555;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+table th {
+    background-color: #16a085;
+    color: white;
+}
+
+table td {
+    background-color: #fff;
+}
+
+.btn {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    color: white;
+    background-color: #16a085;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #12876f;
+}
+
+.btn-edit {
+    background-color: #3498db;
+}
+
+.btn-edit:hover {
+    background-color: #2874a6;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
 }
