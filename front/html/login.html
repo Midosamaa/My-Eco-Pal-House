@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../../static/css/styles.css">
 </head>
 <body>
 
@@ -16,31 +16,12 @@
         <div class="login-form">
             <h2>Bienvenue, connectez-vous</h2>
 
-            <!-- Affichage des messages d'erreur
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="alert">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %} -->
-
-            <form method="POST" onsubmit="return handleLogin();">
-                <input type="text" name="username" placeholder="Nom d'utilisateur" required><br>
+            <form id="login-form" action="/login" method="POST" onsubmit="return handleLogin();">
+                <input type="text" name="email" placeholder="Adresse email" required><br>
                 <input type="password" name="password" placeholder="Mot de passe" required><br>
                 <input type="checkbox" name="remember_me"> Se souvenir de moi<br>
                 <button type="submit">Se connecter</button>
             </form>
-            
-            <script>
-                function handleLogin() {
-                    // Vous pouvez ajouter une validation ici si nécessaire.
-                    window.location.href = "home.html"; // Redirection vers la page souhaitée.
-                    return false; // Empêche l'envoi réel du formulaire.
-                }
-            </script>
             <div class="links">
                 <a href="#">Mot de passe oublié ?</a> | 
                 <a href="{{ url_for('inscription_page') }}">Créer un compte</a>
@@ -51,6 +32,37 @@
     <footer class="footer">
         <p>&copy; 2024 My Eco Pal House</p>
     </footer>
+
+    <script>
+        document.getElementById("login-form").addEventListener("submit", handleLogin);
+    
+        async function handleLogin(event) {
+            event.preventDefault(); // Empêche le rechargement de la page
+    
+            const form = event.target;
+            const formData = new FormData(form);
+    
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+    
+                if (data.status === "error") {
+                    alert(data.message); // Affiche un message d'erreur en cas d'échec
+                    return;
+                }
+    
+                // Connexion réussie, redirige vers la page home
+                alert(data.message);
+                window.location.href = "/home"; // Redirection correcte
+            } catch (error) {
+                alert("Erreur de communication avec le serveur.");
+            }
+        }
+    </script>
+    
 
 </body>
 </html>

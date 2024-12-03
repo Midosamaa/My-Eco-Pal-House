@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../../static/css/styles.css">
+    
 </head>
 <body>
 
@@ -40,17 +41,47 @@
 <script>
     const form = document.getElementById("signupForm");
 
-    form.addEventListener("submit", function (event) {
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();  // Empêche l'envoi classique du formulaire
+
+        // Vérification des mots de passe
         const password = document.getElementById("password").value;
         const confirmPassword = document.getElementById("confirm_password").value;
-
-        // Vérification que les mots de passe correspondent
         if (password !== confirmPassword) {
-            event.preventDefault();  // Empêche l'envoi du formulaire
             alert("Les mots de passe ne correspondent pas.");
+            return; // Stoppe l'exécution du script
+        }
+
+        // Envoi des données via fetch
+        const formData = new FormData(form);
+        try {
+            const response = await fetch('/inscription', {
+                method: 'POST',
+                body: formData
+            });
+            
+            // Traitement de la réponse
+            const data = await response.json();
+
+            if (response.status === 400 && data.error) {
+                // Afficher un message d'erreur spécifique si l'email existe déjà
+                alert(data.error);
+                return;
+            }
+
+            if (response.ok) {
+                alert("Inscription réussie !");
+                window.location.href = '/'; // Redirection vers la page de connexion
+            } else {
+                alert("Une erreur s'est produite. Veuillez réessayer.");
+            }
+        } catch (error) {
+            console.error("Erreur:", error);
+            alert("Erreur de communication avec le serveur.");
         }
     });
 </script>
+
 
 </body>
 </html>

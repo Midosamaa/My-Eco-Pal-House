@@ -9,11 +9,12 @@ DROP TABLE IF EXISTS users;  -- Ajout de la commande pour supprimer la table use
 
 -- Table des utilisateurs
 CREATE TABLE users (
-    ID INTEGER PRIMARY KEY AUTOINCREMENT,         -- ID unique de l'utilisateur
-    name TEXT NOT NULL,                            -- Nom de l'utilisateur
-    logement_id INTEGER NOT NULL,                  -- ID du logement, lié à la table logement
-    password_hash TEXT NOT NULL,                   -- Mot de passe haché
-    FOREIGN KEY (logement_id) REFERENCES logement(ID)  -- Référence à la table logement
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    logement_id INTEGER,
+    email TEXT UNIQUE,  -- Contraintes d'unicité
+    password_hash TEXT NOT NULL,
+    FOREIGN KEY (logement_id) REFERENCES logement (id)
 );
 
 -- Table des logements

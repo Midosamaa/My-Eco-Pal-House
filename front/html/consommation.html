@@ -4,21 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consommations</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../../static/css/styles.css">
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <h1>Suivi des Consommations</h1>
         <nav class="nav">
-            <a href="home.html">Accueil</a>
-            <a href="consommation.html" class="active">Consommation</a>
-            <a href="capteurs.html">Capteurs/Actionneurs</a>
-            <a href="economies.html">Économies</a>
-            <a href="configuration.html">Configuration</a>
+            <a href="{{ url_for('home') }}">Accueil</a>
+            <a href="{{ url_for('consommation') }}" class="active">Consommation</a>
+            <a href="{{ url_for('capteurs') }}">Capteurs/Actionneurs</a>
+            <a href="{{ url_for('economies') }}">Économies</a>
+            <a href="{{ url_for('configuration') }}">Configuration</a>
         </nav>
         <div class="account-menu">
-            <img src="../../images/account-icon2.png" alt="Compte" class="account-icon">
+            <img src="../../static/images/account-icon2.png" alt="Compte" class="account-icon">
             <ul class="dropdown-menu">
                 <li><a href="change-password.html">Changer de mot de passe</a></li>
                 <li><a href="login.html">Se déconnecter</a></li>

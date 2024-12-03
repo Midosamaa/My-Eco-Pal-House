@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template_string, render_template
+from flask import Flask, request, jsonify, render_template_string, render_template, session, redirect, url_for
 from flask_cors import CORS
 import sqlite3
 from datetime import datetime
@@ -6,21 +6,63 @@ import paho.mqtt.client as mqtt  # Import de la bibliothèque MQTT
 import json  # Pour traiter les messages JSON
 import hashlib
 
-app = Flask(__name__, template_folder="../front/html", static_folder="../front/css")
+app = Flask(__name__, template_folder="../front/html", static_folder="../static")
 CORS(app)
+app.secret_key = "cle tres secrete mec de ouf"
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home_page():
     return render_template('login.html')
+
 
 @app.route('/inscription')
 def inscription_page():
     return render_template('inscription.html')
 
+@app.route('/test_session')
+def test_session():
+    # Stocker une valeur dans la session
+    session['test_key'] = 'Session activée !'
+    return "Valeur ajoutée dans la session."
+
+@app.route('/check_session')
+def check_session():
+    valeur = session.get('test_key', 'Aucune valeur trouvée dans la session.')
+    return f"Valeur dans la session : {valeur}"
+
+
+@app.route('/consommation')
+def consommation():
+    return render_template('consommation.html')
+
+@app.route('/capteurs')
+def capteurs():
+    return render_template('capteurs.html')
+
+@app.route('/economies')
+def economies():
+    return render_template('economies.html')
+
+@app.route('/configuration')
+def configuration():
+    return render_template('configuration.html')
+
+@app.route('/change-password')
+def change_password():
+    # Afficher la page de changement de mot de passe
+    return render_template('change-password.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    return redirect('/login')  # Rediriger vers la page de login après déconnexion
+
+
+
 
 # Fonction de connexion à la base de données
 def connect_db():
-    conn = sqlite3.connect('logement.db')
+    conn = sqlite3.connect('../database/logement.db')
     conn.row_factory = sqlite3.Row  # Pour accéder aux colonnes par leur nom
     return conn
 
@@ -69,6 +111,47 @@ def on_message(client, userdata, msg):
     except Exception as e:
         print(f"Erreur dans le traitement des données : {e}")
 
+@app.route('/login', methods=['POST'])
+def login():
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        # Vérifiez si l'utilisateur existe dans la base de données
+        cursor.execute('SELECT id, password_hash FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
+
+        if not user:
+            return jsonify({"status": "error", "message": "Adresse email non trouvée."}), 400
+
+        user_id, password_hash = user
+
+        # Vérifiez que le mot de passe correspond
+        if hashlib.sha256(password.encode()).hexdigest() != password_hash:
+            return jsonify({"status": "error", "message": "Mot de passe incorrect."}), 400
+
+        # Connexion réussie, créez une session
+        session['user_id'] = user_id
+        return jsonify({"status": "success", "message": "Connexion réussie."}), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": "Erreur interne."}), 500
+    
+@app.route('/home')
+def home():
+    if 'user_id' not in session:
+        return redirect('/login_page')  # Redirige vers la page de connexion si non connecté
+    return render_template('home.html')  # Charge la page uniquement si authentifié
+
+# @app.route('/logout')
+# def logout():
+#     session.pop('user_id', None)
+#     return redirect('/login_page')  # Redirige vers la page de connexion après déconnexion
+
+
 # Configuration du client MQTT
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
@@ -82,7 +165,6 @@ mqtt_client.loop_start()
 
 @app.route('/inscription', methods=['POST'])
 def inscription():
-    # Récupérer les données du formulaire envoyé depuis l'HTML
     prenom = request.form.get('prenom')
     nom = request.form.get('nom')
     adresse = request.form.get('adresse')
@@ -91,38 +173,50 @@ def inscription():
     password = request.form.get('password')
     confirm_password = request.form.get('confirm_password')
 
-    # Afficher les données reçues pour déboguer
-    print(f"Prénom: {prenom}, Nom: {nom}, Adresse: {adresse}, Téléphone: {telephone}, Email: {email}")
-    
-    # Hacher le mot de passe (utilise une méthode comme bcrypt ou hashlib)
+    # Vérifier que les mots de passe correspondent
+    if password != confirm_password:
+        return jsonify({"error": "Les mots de passe ne correspondent pas"}), 400
+
+    # Hacher le mot de passe
     password_hash = hashlib.sha256(password.encode()).hexdigest()
 
-    # Connexion à la base de données et insertion de l'utilisateur
     try:
         conn = connect_db()
         cursor = conn.cursor()
-        
+
+        # Vérifier si l'email existe déjà
+        cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            return jsonify({"error": "Un compte avec cet e-mail existe déjà"}), 400
+
         # Insérer un nouveau logement
         cursor.execute('''
             INSERT INTO logement (IP, adress, num_tel)
             VALUES (?, ?, ?)
         ''', ('192.168.1.1', adresse, telephone))
         logement_id = cursor.lastrowid
-        
+
         # Insérer l'utilisateur dans la table "users"
         cursor.execute('''
-            INSERT INTO users (name, logement_id, password_hash)
-            VALUES (?, ?, ?)
-        ''', (f"{prenom} {nom}", logement_id, password_hash))
-        
+            INSERT INTO users (name, logement_id, email, password_hash)
+            VALUES (?, ?, ?, ?)
+        ''', (f"{prenom} {nom}", logement_id, email, password_hash))
+
         conn.commit()
         conn.close()
-        
-        return jsonify({"message": "Inscription réussie"}), 201
-    
+
+        # Succès - pas besoin de render_template ici, JSON est mieux pour les requêtes AJAX
+        return jsonify({"message": "Inscription réussie !"}), 200
+
+    except sqlite3.IntegrityError as e:
+        if "users.email" in str(e):
+            return jsonify({"error": "Cet email existe déjà."}), 400
+        return jsonify({"error": "Erreur lors de l'inscription."}), 500
+
     except Exception as e:
-        print(f"Erreur lors de l'insertion: {e}")
-        return jsonify({"error": "Erreur lors de l'inscription"}), 500
+        return jsonify({"error": "Erreur interne."}), 500
 
 # Route GET pour récupérer toutes les mesures
 @app.route('/mesures', methods=['GET'])
@@ -171,7 +265,7 @@ def get_factures():
 
 #Route pour la consommation
 @app.route('/api/consommation', methods=['GET'])
-def consommation():
+def api_consommation():
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute('''
@@ -199,7 +293,7 @@ def add_facture():
 
 #Route pour les économies
 @app.route('/api/economies', methods=['GET'])
-def economies():
+def api_economies():
     conn = connect_db()
     cursor = conn.cursor()
     # Calcul d'exemple : différence entre consommation actuelle et une moyenne historique
