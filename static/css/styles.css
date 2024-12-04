@@ -1026,6 +1026,8 @@ footer.footer {
     display: block;
     width: 100%;
     padding: 10px 15px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
     font-size: 1rem;
     color: white;
     background-color: #16a085;

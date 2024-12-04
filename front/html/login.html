@@ -33,35 +33,7 @@
         <p>&copy; 2024 My Eco Pal House</p>
     </footer>
 
-    <script>
-        document.getElementById("login-form").addEventListener("submit", handleLogin);
-    
-        async function handleLogin(event) {
-            event.preventDefault(); // Empêche le rechargement de la page
-    
-            const form = event.target;
-            const formData = new FormData(form);
-    
-            try {
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-    
-                if (data.status === "error") {
-                    alert(data.message); // Affiche un message d'erreur en cas d'échec
-                    return;
-                }
-    
-                // Connexion réussie, redirige vers la page home
-                alert(data.message);
-                window.location.href = "/home"; // Redirection correcte
-            } catch (error) {
-                alert("Erreur de communication avec le serveur.");
-            }
-        }
-    </script>
+<script src="../../static/js/scripts.js"></script>
     
 
 </body>

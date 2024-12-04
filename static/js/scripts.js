@@ -1,116 +1,109 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Fonction pour récupérer les données de consommation
-    function getConsommation() {
-        fetch('http://localhost:5000/api/consommation')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur réseau : ' + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                let electricitySummary = 0;
-                let waterSummary = 0;
 
-                // Boucle à travers les données pour assigner les valeurs
-                data.forEach(item => {
-                    if (item.type === 'électricité') {
-                        electricitySummary = item.total_consommee;
-                    } else if (item.type === 'eau') {
-                        waterSummary = item.total_consommee;
-                    }
-                });
+//inscription
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("signupForm");
 
-                // Mise à jour des éléments HTML avec les valeurs récupérées
-                document.getElementById('electricity-summary').textContent = electricitySummary + " kWh";
-                document.getElementById('water-summary').textContent = waterSummary + " L";
-            })
-            .catch(error => {
-                console.error('Erreur lors de la récupération des données de consommation:', error);
-                // Affichage d'un message d'erreur en cas de problème
-                document.getElementById('electricity-summary').textContent = 'Erreur';
-                document.getElementById('water-summary').textContent = 'Erreur';
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();  // Empêche l'envoi classique du formulaire
+
+        // Vérification des mots de passe
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirm_password").value;
+        if (password !== confirmPassword) {
+            alert("Les mots de passe ne correspondent pas.");
+            return; // Stoppe l'exécution du script
+        }
+
+        // Envoi des données via fetch
+        const formData = new FormData(form);
+        try {
+            const response = await fetch('/inscription', {
+                method: 'POST',
+                body: formData
             });
-    }
 
-    // Fonction pour récupérer les économies réalisées
-    function getEconomies() {
-        fetch('http://localhost:5000/api/economies')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur réseau : ' + response.status);
+            // Traitement de la réponse
+            const data = await response.json();
+
+            if (response.status === 400 && data.error) {
+                // Afficher un message d'erreur spécifique si l'email existe déjà
+                alert(data.error);
+                return;
+            }
+
+            if (response.ok) {
+                alert("Inscription réussie !");
+                window.location.href = '/'; // Redirection vers la page de connexion
+            } else {
+                alert("Une erreur s'est produite. Veuillez réessayer.");
+            }
+        } catch (error) {
+            console.error("Erreur:", error);
+            alert("Erreur de communication avec le serveur.");
+        }
+    });
+});
+//login
+document.addEventListener("DOMContentLoaded", function () {
+    // Script pour la page de connexion
+    const loginForm = document.getElementById("login-form");
+    if (loginForm) {
+        loginForm.addEventListener("submit", async function (event) {
+            event.preventDefault(); // Empêche le rechargement de la page
+
+            const formData = new FormData(loginForm);
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.status === "error") {
+                    alert(data.message); // Affiche un message d'erreur en cas d'échec
+                    return;
                 }
-                return response.json();
-            })
-            .then(data => {
-                let savingsSummary = 0;
 
-                // Boucle à travers les données pour cumuler les économies réalisées
-                data.forEach(item => {
-                    savingsSummary += item.economie;
-                });
-
-                // Mise à jour de l'élément HTML avec les économies réalisées
-                document.getElementById('savings-summary').textContent = savingsSummary.toFixed(2) + " €";
-            })
-            .catch(error => {
-                console.error('Erreur lors de la récupération des économies:', error);
-                // Affichage d'un message d'erreur en cas de problème
-                document.getElementById('savings-summary').textContent = 'Erreur';
-            });
+                // Connexion réussie, redirige vers la page home
+                alert(data.message);
+                window.location.href = "/home"; // Redirection correcte
+            } catch (error) {
+                console.error("Erreur:", error);
+                alert("Erreur de communication avec le serveur.");
+            }
+        });
     }
+});
+//change pwrd
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("changePasswordForm");
+    const confirmBtn = document.getElementById("confirmBtn");
+    
+    // Lorsque le bouton "Changer le mot de passe" est cliqué
+    confirmBtn.addEventListener("click", function (event) {
+        const newPassword = document.getElementById("newPassword")? document.getElementById("newPassword").value : null;
+        const confirmPassword = document.getElementById("confirmPassword")? document.getElementById("confirmPassword").value : null;
+        const currentPassword = document.getElementById("currentPassword") ? document.getElementById("currentPassword").value : null;
 
-    // Fonction pour générer le graphique de consommation
-    function generateConsumptionChart() {
-        fetch('http://localhost:5000/api/consommation')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur réseau : ' + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                const labels = [];
-                const consumptionData = [];
-                
-                // Boucle pour extraire les données nécessaires pour le graphique
-                data.forEach(item => {
-                    labels.push(item.type);
-                    consumptionData.push(item.total_consommee);
-                });
+        // Vérification que tous les champs sont remplis
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            event.preventDefault();  // Empêche la soumission du formulaire
+            alert("Remplissez tous les champs.");
+        } else if (newPassword !== confirmPassword) {
+            event.preventDefault();  // Empêche la soumission du formulaire
+            alert("Les nouveaux mots de passe ne correspondent pas.");
+        } else {
+            // Si les mots de passe sont valides, on affiche un message et on redirige
+            alert("Mot de passe changé avec succès!");
+            window.location.href = "/home";  // Redirige vers la page d'accueil
+        }
+    });
+});
 
-                // Création du graphique avec Chart.js
-                const ctx = document.getElementById('consumptionChart').getContext('2d');
-                const consumptionChart = new Chart(ctx, {
-                    type: 'bar',  // Type de graphique (barres)
-                    data: {
-                        labels: labels,  // Labels des types de consommation (électricité, eau, etc.)
-                        datasets: [{
-                            label: 'Consommation (kWh)',  // Légende du graphique
-                            data: consumptionData,  // Données des consommations
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Couleur de fond des barres
-                            borderColor: 'rgba(75, 192, 192, 1)',  // Couleur du bord des barres
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true  // Commence à zéro sur l'axe Y
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Erreur lors de la récupération des données du graphique:', error);
-                // Affichage d'un message d'erreur en cas de problème
-                document.getElementById('consumptionChart').textContent = 'Erreur lors de la récupération des données';
-            });
-    }
 
-    // Appels des fonctions pour récupérer les données et générer le graphique au chargement de la page
-    getConsommation();
-    getEconomies();
-    generateConsumptionChart();
+// Lorsque le bouton "Annuler" est cliqué
+document.getElementById("cancelBtn").addEventListener("click", function () {
+    window.location.href = "/home";  // Redirige vers la page d'accueil
 });

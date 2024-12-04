@@ -38,50 +38,7 @@
     <p>&copy; 2024 My Eco Pal House</p>
 </footer>
 
-<script>
-    const form = document.getElementById("signupForm");
-
-    form.addEventListener("submit", async function (event) {
-        event.preventDefault();  // Empêche l'envoi classique du formulaire
-
-        // Vérification des mots de passe
-        const password = document.getElementById("password").value;
-        const confirmPassword = document.getElementById("confirm_password").value;
-        if (password !== confirmPassword) {
-            alert("Les mots de passe ne correspondent pas.");
-            return; // Stoppe l'exécution du script
-        }
-
-        // Envoi des données via fetch
-        const formData = new FormData(form);
-        try {
-            const response = await fetch('/inscription', {
-                method: 'POST',
-                body: formData
-            });
-            
-            // Traitement de la réponse
-            const data = await response.json();
-
-            if (response.status === 400 && data.error) {
-                // Afficher un message d'erreur spécifique si l'email existe déjà
-                alert(data.error);
-                return;
-            }
-
-            if (response.ok) {
-                alert("Inscription réussie !");
-                window.location.href = '/'; // Redirection vers la page de connexion
-            } else {
-                alert("Une erreur s'est produite. Veuillez réessayer.");
-            }
-        } catch (error) {
-            console.error("Erreur:", error);
-            alert("Erreur de communication avec le serveur.");
-        }
-    });
-</script>
-
+<script src="../../static/js/scripts.js"></script>
 
 </body>
 </html>

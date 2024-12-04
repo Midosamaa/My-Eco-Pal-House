@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consommations</title>
     <link rel="stylesheet" href="../../static/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -20,12 +21,11 @@
         <div class="account-menu">
             <img src="../../static/images/account-icon2.png" alt="Compte" class="account-icon">
             <ul class="dropdown-menu">
-                <li><a href="change-password.html">Changer de mot de passe</a></li>
-                <li><a href="login.html">Se déconnecter</a></li>
+                <li><a href="{{ url_for('change_password') }}">Changer de mot de passe</a></li>
+                <li><a href="{{ url_for('logout') }}">Se déconnecter</a></li>
             </ul>
         </div>
     </header>
-
 
     <div class="container">
         <section class="hero">
@@ -34,7 +34,7 @@
         </section>
 
         <!-- Graphique des consommations -->
-        <section class= "charts" class="consumption-charts">
+        <section class="charts">
             <h3>Consommation globale</h3>
             <canvas id="consommationChart"></canvas>
         </section>
@@ -78,16 +78,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Électricité</td>
-                        <td>Novembre 2024</td>
-                        <td>250 kWh</td>
-                    </tr>
-                    <tr>
-                        <td>Eau</td>
-                        <td>Novembre 2024</td>
-                        <td>600 Litres</td>
-                    </tr>
+                    {% for type_conso, data in consommations.items() %}
+                        {% for entry in data %}
+                            <tr>
+                                <td>{{ type_conso | capitalize }}</td>
+                                <td>{{ entry.date }}</td>
+                                <td>{{ entry.conso }} kWh</td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
                 </tbody>
             </table>
         </section>
@@ -98,90 +97,122 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Données de consommation initiales
-        const consumptionData = {
-            electricity: {
-                2023: [120, 130, 150, 145, 160, 155, 170, 180, 185, 190, 200, 210],
-                2024: [125, 135, 160, 150, 165, 160, 180, 190, 200, 205, 215, 220]
-            },
-            water: {
-                2023: [400, 350, 300, 250, 450, 500, 480, 460, 430, 420, 480, 490],
-                2024: [450, 400, 380, 370, 460, 510, 500, 490, 470, 460, 500, 510]
-            },
-            gas: {
-                2023: [120, 110, 140, 130, 150, 160, 170, 165, 155, 160, 170, 180],
-                2024: [130, 120, 140, 145, 155, 160, 175, 170, 160, 155, 165, 170]
-            }
-        };
-
+        // Utiliser directement la variable 'consommations' envoyée par Flask
+        // Assurez-vous que la variable consommations est bien envoyée et accessible.
+        var consommations =   "{{ consommations }}";
+        consommations =   JSON.parse(consommations)
+        console.log(consommations);
+        // Formatage des données pour l'affichage
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
+    
+        // Données de consommation par type
+        const electricityData = consommations.electricity.map(item => item.conso);
+        const waterData = consommations.water.map(item => item.conso);
+        const gasData = consommations.gas.map(item => item.conso);
+    
         // Initialisation du graphique
         const chartData = {
             labels: months,
             datasets: [{
                 label: 'Consommation Électricité',
-                data: consumptionData.electricity[2024],
+                data: electricityData,
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
+            }, {
+                label: 'Consommation Eau',
+                data: waterData,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Consommation Gaz',
+                data: gasData,
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
             }]
         };
-
+    
         const ctx = document.getElementById('consommationChart').getContext('2d');
-        const consumptionChart = new Chart(ctx, {
+        const consommationChart = new Chart(ctx, {
             type: 'line',
             data: chartData,
             options: {
                 responsive: true,
                 scales: {
-                    x: {
-                        beginAtZero: true
-                    },
-                    y: {
-                        beginAtZero: true
-                    }
+                    x: { beginAtZero: true },
+                    y: { beginAtZero: true }
                 }
             }
         });
-
-        // Appliquer les filtres
+    
+        // Fonction pour appliquer les filtres
         document.getElementById('apply-filters').addEventListener('click', () => {
             const selectedType = document.getElementById('consumption-type').value;
             const selectedPeriod = document.getElementById('time-period').value;
-
-            let newData = [];
-            let selectedYear = 2024;
-
-            // Sélectionner les données appropriées selon le type de consommation
-            if (selectedType === 'electricity') {
-                newData = consumptionData.electricity;
-            } else if (selectedType === 'water') {
-                newData = consumptionData.water;
-            } else if (selectedType === 'gas') {
-                newData = consumptionData.gas;
+    
+            let filteredData = {};
+    
+            // Filtrage des données selon le type de consommation
+            if (selectedType === 'all') {
+                filteredData = consommations;
             } else {
-                newData = [...consumptionData.electricity, ...consumptionData.water, ...consumptionData.gas];
+                filteredData = { [selectedType]: consommations[selectedType] };
             }
-
-            // Filtrage en fonction de la période
-            if (selectedPeriod === 'year') {
-                newData = newData[selectedYear];
-                chartData.labels = months;
-            } else if (selectedPeriod === 'month') {
-                newData = [newData[selectedYear][0]]; 
-                chartData.labels = ['Jan']; 
-            } else {
-                newData = newData.flat();
-                chartData.labels = months;
+    
+            // Appliquer un filtrage selon la période (ce mois, cette année, etc.)
+            if (selectedPeriod === 'month') {
+                // Exemple simple: filtrer pour le mois actuel (tu peux ajuster cela)
+                const currentMonth = new Date().getMonth();
+                for (let type in filteredData) {
+                    filteredData[type] = filteredData[type].filter(item => new Date(item.date).getMonth() === currentMonth);
+                }
             }
-
-            // Mise à jour du graphique
-            consumptionChart.data.datasets[0].data = newData;
-            consumptionChart.update();
+    
+            // Mise à jour du graphique avec les données filtrées
+            updateChart(filteredData);
         });
-    </script>
+    
+        // Fonction pour mettre à jour le graphique avec les données filtrées
+        function updateChart(filteredData) {
+            const updatedData = {
+                labels: months,
+                datasets: []
+            };
+    
+            if (filteredData.electricity) {
+                updatedData.datasets.push({
+                    label: 'Consommation Électricité',
+                    data: filteredData.electricity.map(item => item.conso),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                });
+            }
+            if (filteredData.water) {
+                updatedData.datasets.push({
+                    label: 'Consommation Eau',
+                    data: filteredData.water.map(item => item.conso),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                });
+            }
+            if (filteredData.gas) {
+                updatedData.datasets.push({
+                    label: 'Consommation Gaz',
+                    data: filteredData.gas.map(item => item.conso),
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                });
+            }
+    
+            consommationChart.data = updatedData;
+            consommationChart.update();
+        }
+    </script>   
 </body>
 </html>

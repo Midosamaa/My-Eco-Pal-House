@@ -33,7 +33,51 @@ def check_session():
 
 @app.route('/consommation')
 def consommation():
-    return render_template('consommation.html')
+    # Récupérer l'ID de l'utilisateur connecté (par exemple depuis la session)
+    user_id = session.get('user_id')  # Assurez-vous que l'utilisateur est connecté
+    
+    if user_id is None:
+        return redirect(url_for('login'))
+
+    # Récupérer l'ID du logement de l'utilisateur
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT logement_id FROM users WHERE id = ?", (user_id,))
+    logement_id = cursor.fetchone()[0]
+
+    # Récupérer les factures pour le logement de l'utilisateur
+    cursor.execute("""
+        SELECT type, date_fact, val_consommee
+        FROM facture
+        WHERE logement_id = ?
+        ORDER BY date_fact
+    """, (logement_id,))
+    
+    factures = cursor.fetchall()
+
+    # Organiser les données pour le front-end
+    consommations = {
+        'electricity': [],
+        'water': [],
+        'gas': []
+    }
+
+    for facture in factures:
+        type_conso = facture[0]
+        date = facture[1]
+        consommee = facture[2]
+        
+        if type_conso == 'electricity':
+            consommations['electricity'].append({'date': date, 'consommation': consommee})
+        elif type_conso == 'water':
+            consommations['water'].append({'date': date, 'consommation': consommee})
+        elif type_conso == 'gas':
+            consommations['gas'].append({'date': date, 'consommation': consommee})
+
+    # Passer les données à la page HTML
+    return render_template('consommation.html', consommations=consommations)
+
+
 
 @app.route('/capteurs')
 def capteurs():
@@ -47,15 +91,56 @@ def economies():
 def configuration():
     return render_template('configuration.html')
 
-@app.route('/change-password')
+@app.route('/change-password', methods=['GET', 'POST'])
 def change_password():
-    # Afficher la page de changement de mot de passe
-    return render_template('change-password.html')
+    # Vérifie si l'utilisateur est connecté (session)
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  # Redirige vers la page de connexion si non authentifié
 
+    if request.method == 'POST':
+        # Récupère les champs du formulaire
+        current_password = request.form.get('currentPassword')
+        new_password = request.form.get('newPassword')
+        confirm_password = request.form.get('confirmPassword')
+
+        try:
+            conn = connect_db()
+            cursor = conn.cursor()
+
+            # Récupère le mot de passe hashé de l'utilisateur actuel
+            cursor.execute('SELECT password_hash FROM users WHERE id = ?', (session['user_id'],))
+            user = cursor.fetchone()
+
+            if not user:
+                return jsonify({"status": "error", "message": "Utilisateur non trouvé."}), 400
+
+            stored_password_hash = user[0]
+
+            # Vérifie que le mot de passe actuel correspond à celui stocké dans la base de données
+            if hashlib.sha256(current_password.encode()).hexdigest() != stored_password_hash:
+                return jsonify({"status": "error", "message": "Le mot de passe actuel est incorrect."}), 400
+
+            # Vérifie que les nouveaux mots de passe correspondent
+            if new_password != confirm_password:
+                return jsonify({"status": "error", "message": "Les nouveaux mots de passe ne correspondent pas."}), 400
+
+            # Hache le nouveau mot de passe
+            new_password_hash = hashlib.sha256(new_password.encode()).hexdigest()
+
+            # Met à jour le mot de passe dans la base de données
+            cursor.execute('UPDATE users SET password_hash = ? WHERE id = ?', (new_password_hash, session['user_id']))
+            conn.commit()
+
+            return jsonify({"status": "success", "message": "Mot de passe changé avec succès."}), 200
+
+        except Exception as e:
+            return jsonify({"status": "error", "message": "Erreur interne."}), 500
+
+    return render_template('change-password.html')  # Affiche le formulaire de changement de mot de passe
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
-    return redirect('/login')  # Rediriger vers la page de login après déconnexion
+    return redirect('/')  # Rediriger vers la page de login après déconnexion
 
 
 
@@ -67,7 +152,7 @@ def connect_db():
     return conn
 
 # Configuration MQTT
-MQTT_BROKER = "192.168.1.17"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
+MQTT_BROKER ="172.20.10.3" #"192.168.1.17"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
 MQTT_PORT = 1883  # Port par défaut de MQTT
 MQTT_TOPIC = "maison/capteurs/dht11"  # Topic pour recevoir les données de température et d'humidité
 LED_TOPIC = "maison/led"  # Topic pour envoyer des commandes pour allumer ou éteindre la LED

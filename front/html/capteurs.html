@@ -19,8 +19,8 @@
         <div class="account-menu">
             <img src="../../static/images/account-icon2.png" alt="Compte" class="account-icon">
             <ul class="dropdown-menu">
-                <li><a href="change-password.html">Changer de mot de passe</a></li>
-                <li><a href="login.html">Se déconnecter</a></li>
+                <li><a href="{{ url_for('change_password') }}">Changer de mot de passe</a></li>
+                <li><a href="{{ url_for('logout') }}">Se déconnecter</a></li>
             </ul>
         </div>
     </header>
