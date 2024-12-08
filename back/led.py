@@ -5,6 +5,7 @@ from datetime import datetime
 import paho.mqtt.client as mqtt  # Import de la bibliothèque MQTT
 import json  # Pour traiter les messages JSON
 import hashlib
+from datetime import datetime
 
 app = Flask(__name__, template_folder="../front/html", static_folder="../static")
 CORS(app)
@@ -31,53 +32,97 @@ def check_session():
     return f"Valeur dans la session : {valeur}"
 
 
-@app.route('/consommation')
+@app.route('/consommation', methods=['GET', 'POST'])
 def consommation():
-    # Récupérer l'ID de l'utilisateur connecté (par exemple depuis la session)
-    user_id = session.get('user_id')  # Assurez-vous que l'utilisateur est connecté
-    
+    user_id = session.get('user_id')
     if user_id is None:
         return redirect(url_for('login'))
 
-    # Récupérer l'ID du logement de l'utilisateur
+    # Paramètre de filtrage (par mois, année ou tout)
+    selected_period = request.args.get('period', 'month')
+
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute("SELECT logement_id FROM users WHERE id = ?", (user_id,))
-    logement_id = cursor.fetchone()[0]
+    logement_row = cursor.fetchone()
 
-    # Récupérer les factures pour le logement de l'utilisateur
-    cursor.execute("""
-        SELECT type, date_fact, val_consommee
-        FROM facture
-        WHERE logement_id = ?
-        ORDER BY date_fact
-    """, (logement_id,))
-    
+    if logement_row is None:
+        return "Logement introuvable", 404
+
+    logement_id = logement_row[0]
+
+    # Calcul de la date pour le filtrage
+    if selected_period == 'month':
+        date_filter = datetime.now().strftime('%Y-%m')
+        cursor.execute("""
+            SELECT type, date_fact, val_consommee, montant
+            FROM facture
+            WHERE logement_id = ? AND date_fact LIKE ?
+            ORDER BY date_fact
+        """, (logement_id, f'{date_filter}%'))
+    elif selected_period == 'year':
+        year_filter = datetime.now().strftime('%Y')
+        cursor.execute("""
+            SELECT type, date_fact, val_consommee, montant
+            FROM facture
+            WHERE logement_id = ? AND date_fact LIKE ?
+            ORDER BY date_fact
+        """, (logement_id, f'{year_filter}%'))
+    else:
+        cursor.execute("""
+            SELECT type, date_fact, val_consommee, montant
+            FROM facture
+            WHERE logement_id = ?
+            ORDER BY date_fact
+        """, (logement_id,))
+
     factures = cursor.fetchall()
 
-    # Organiser les données pour le front-end
     consommations = {
         'electricity': [],
         'water': [],
-        'gas': []
+        'gas': [],
+        'internet': []  # Ajout de l'internet
     }
 
-    for facture in factures:
-        type_conso = facture[0]
-        date = facture[1]
-        consommee = facture[2]
-        
-        if type_conso == 'electricity':
-            consommations['electricity'].append({'date': date, 'consommation': consommee})
-        elif type_conso == 'water':
-            consommations['water'].append({'date': date, 'consommation': consommee})
-        elif type_conso == 'gas':
-            consommations['gas'].append({'date': date, 'consommation': consommee})
+    for type_conso, date, consommee, montant in factures:
+        if type_conso in consommations:
+            consommations[type_conso].append({
+                'date': date,
+                'consommation': consommee,
+                'montant': montant
+            })
+        else:
+            print(f"Type inconnu ignoré : {type_conso}")
 
-    # Passer les données à la page HTML
-    return render_template('consommation.html', consommations=consommations)
+    conn.close()
+
+    return render_template('consommation.html', consommations=consommations, period=selected_period)
 
 
+@app.route('/factures/<int:id>', methods=['DELETE'])
+def supprimer_facture(id):
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        # Supprimer la facture avec l'id donné
+        cursor.execute("DELETE FROM facture WHERE id = ?", (id,))
+        conn.commit()
+
+        # Vérifiez si une facture a été supprimée
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Facture non trouvée"}), 404
+
+        return jsonify({"message": "Facture supprimée avec succès"}), 200
+
+    except Exception as e:
+        print("Erreur lors de la suppression de la facture :", e)
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/capteurs')
 def capteurs():
@@ -152,7 +197,7 @@ def connect_db():
     return conn
 
 # Configuration MQTT
-MQTT_BROKER ="172.20.10.3" #"192.168.1.17"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
+MQTT_BROKER = "192.168.1.17" #"172.20.10.3"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
 MQTT_PORT = 1883  # Port par défaut de MQTT
 MQTT_TOPIC = "maison/capteurs/dht11"  # Topic pour recevoir les données de température et d'humidité
 LED_TOPIC = "maison/led"  # Topic pour envoyer des commandes pour allumer ou éteindre la LED
@@ -397,6 +442,8 @@ def api_economies():
         data.append({"type": type_facture, "economie": economie})
     conn.close()
     return jsonify(data)
+
+
 
 
 # Route GET pour afficher une page HTML avec un camembert des factures combinées par type

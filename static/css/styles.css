@@ -167,16 +167,18 @@ header .nav a.active {
 
 /* Charts Section */
 .charts {
-    padding: 2rem 0;
+    height: fit-content;
+    padding: 2rem;
+    width: auto;
     background: #fff;
     text-align: center;
 }
 
 .charts canvas {
-    max-width: 100%;
-    width: 50%;
+    max-width: auto;
+    width: auto;
     height: auto;
-    margin: auto;
+    margin: 2rem;
 }
 
 /* Footer */
@@ -256,6 +258,7 @@ footer.footer {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    display: none;
 }
 
 .consumption-table th, .consumption-table td {
@@ -1114,4 +1117,62 @@ table td {
 
 .btn-delete:hover {
     background-color: #c0392b;
+}
+
+#consommationPieChart {
+    padding: 1rem;
+    width: 70%;              /* Le graphique prendra toute la largeur de son conteneur */
+    height: 20rem;            /* Hauteur par défaut (ajustée pour les petites tailles d'écran) */
+    max-width: 30rem;         /* Largeur maximale, ne dépassant pas 600px */
+    margin: auto;        /* Centrer horizontalement avec un petit espacement autour */
+    display: block;           /* Faire en sorte que le canvas soit un élément bloc */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre légère autour du graphique */
+    border-radius: 10px;      /* Coins arrondis pour une apparence moderne */
+}
+
+/* Pour les écrans plus petits comme les tablettes */
+@media (max-width: 768px) {
+    #consommationPieChart {
+        height: 300px; /* Réduire la hauteur sur les écrans de taille moyenne */
+        max-width: 90%; /* Augmenter la largeur relative pour les tablettes */
+    }
+}
+
+/* Pour les petits écrans comme les smartphones */
+@media (max-width: 480px) {
+    #consommationPieChart {
+        height: 250px; /* Réduire encore la hauteur pour les petits écrans */
+        max-width: 90%; /* Réduire la largeur pour s'ajuster aux petits écrans */
+    }
+}
+
+/* Pour les très petits écrans (si nécessaire) */
+@media (max-width: 360px) {
+    #consommationPieChart {
+        height: 200px; /* Hauteur plus petite pour les petits téléphones */
+        max-width: 100%; /* S'assurer que le graphique ne dépasse pas la largeur de l'écran */
+    }
+}
+
+/* Style pour le canvas du graphique linéaire */
+#lineChart {
+    width: 100%;        /* Largeur du canvas à 100% du conteneur parent */
+    height: 30rem;      /* Hauteur du canvas définie en rem, adaptable en fonction de la taille de la police */
+    max-width: 100%;    /* S'assure que le canvas ne dépasse pas la largeur de son conteneur parent */
+    margin: 2rem auto;  /* Ajoute un espacement autour du canvas */
+    display: block;     /* S'assure que le canvas est un bloc pour un meilleur contrôle de la mise en page */
+}
+
+/* Media query pour les écrans plus petits (tablettes et téléphones) */
+@media (max-width: 768px) {
+    #lineChart {
+        height: 25rem;   /* Réduit la hauteur sur les petits écrans */
+    }
+}
+
+/* Media query pour les très petits écrans (téléphones) */
+@media (max-width: 480px) {
+    #lineChart {
+        height: 20rem;   /* Réduit encore la hauteur pour les très petits écrans */
+    }
 }
