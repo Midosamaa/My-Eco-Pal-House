@@ -6,13 +6,11 @@ body {
     background-color: #f4f4f9;
     color: #333;
 }
-
 .container {
     width: 90%;
     margin: auto;
     max-width: 1200px;
 }
-
 /* Header */
 header.header {
     background: #00796b;
@@ -21,12 +19,11 @@ header.header {
     text-align: center;
     position:sticky;
     top: 0;
+    z-index: 100000;
 }
-
 header .nav {
     margin-top: 1rem;
 }
-
 header .nav a {
     color: #fff;
     text-decoration: none;
@@ -35,12 +32,10 @@ header .nav a {
     border-radius: 5px;
     transition: background 0.3s ease;
 }
-
 header .nav a:hover,
 header .nav a.active {
     background: #004d40;
 }
-
 /* Hero Section */
 .hero {
     text-align: center;
@@ -48,12 +43,10 @@ header .nav a.active {
     background: #004d40;
     color: #fff;
 }
-
 .hero h2 {
     font-size: 2rem;
     margin-bottom: 1rem;
 }
-
 /* Login Form Styles */
 .login-form {
     max-width: 400px;
@@ -64,13 +57,11 @@ header .nav a.active {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
-
 .login-form h2 {
     font-size: 2rem;
     margin-bottom: 1rem;
     color: #00796b;
 }
-
 /* Input Fields */
 .login-form input[type="text"],
 .login-form input[type="password"],
@@ -84,11 +75,9 @@ header .nav a.active {
     box-sizing: border-box;
     font-size: 1rem;
 }
-
 .login-form input[type="checkbox"] {
     margin-top: 10px;
 }
-
 /* Button */
 .login-form button {
     background-color: #00796b;
@@ -101,11 +90,9 @@ header .nav a.active {
     font-size: 1.1rem;
     transition: background-color 0.3s ease;
 }
-
 .login-form button:hover {
     background-color: #004d40;
 }
-
 /* Error Message */
 .alert {
     color: white;
@@ -114,38 +101,31 @@ header .nav a.active {
     border-radius: 5px;
     margin-bottom: 15px;
 }
-
 .alert p {
     margin: 0;
 }
-
 /* Links */
 .login-form .links {
     margin-top: 15px;
 }
-
 .login-form .links a {
     color: #00796b;
     text-decoration: none;
     margin: 0 10px;
 }
-
 .login-form .links a:hover {
     color: #004d40;
 }
-
 /* Summary Section */
 .summary {
     background: #fff;
     padding: 2rem 0;
 }
-
 .summary .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
 }
-
 .card {
     text-align: center;
     background: #f4f4f9;
@@ -154,17 +134,14 @@ header .nav a.active {
     padding: 1.5rem;
     transition: transform 0.3s ease;
 }
-
 .card i {
     font-size: 2rem;
     margin-bottom: 1rem;
     color: #00796b;
 }
-
 .card:hover {
     transform: scale(1.05);
 }
-
 /* Charts Section */
 .charts {
     height: fit-content;
@@ -173,14 +150,20 @@ header .nav a.active {
     background: #fff;
     text-align: center;
 }
-
+.charts-row {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    gap: 20px;
+    margin: auto;
+    position: relative; /* Pour éviter que les graphiques se superposent au header */
+}
 .charts canvas {
     max-width: auto;
     width: auto;
     height: auto;
     margin: 2rem;
 }
-
 /* Footer */
 footer.footer {
     text-align: center;
@@ -188,26 +171,22 @@ footer.footer {
     color: #fff;
     padding: 1rem 0;
 }
-
 /* Capteurs et Actionneurs */
 .sensor-actuator {
     background: #f9f9f9;
     padding: 2rem 0;
 }
-
 .sensor-actuator h2 {
     font-size: 2rem;
     color: #00796b;
     text-align: center;
     margin-bottom: 2rem;
 }
-
 .sensor-list, .actuator-list {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
 }
-
 .sensor, .actuator {
     background-color: #ffffff;
     padding: 1.5rem;
@@ -217,24 +196,19 @@ footer.footer {
     width: 280px;
     text-align: center;
 }
-
 .sensor h3, .actuator h3 {
     font-size: 1.2rem;
     color: #00796b;
 }
-
 .status {
     font-weight: bold;
 }
-
 .status.on {
     color: #388e3c;
 }
-
 .status.off {
     color: #d32f2f;
 }
-
 .btn-toggle {
     background-color: #00796b;
     color: white;
@@ -248,30 +222,24 @@ footer.footer {
     transition: background-color 0.3s ease, transform 0.2s ease;
     text-transform: uppercase;
 }
-
 .btn-toggle:hover {
     background-color: #004d40;
     transform: scale(1.05);
 }
-
 .consumption-table table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    display: none;
 }
-
 .consumption-table th, .consumption-table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: center;
 }
-
 .consumption-table th {
     background-color: #00796b;
     color: #fff;
 }
-
 /* Filters Section */
 .filters {
     background-color: #ffffff;
@@ -282,13 +250,11 @@ footer.footer {
     max-width: 90%;
     text-align: center;
 }
-
 .filters h2 {
     font-size: 1.5rem;
     color: #00796b;
     margin-bottom: 1.5rem;
 }
-
 /* Labels */
 .filters label {
     display: block;
@@ -297,7 +263,6 @@ footer.footer {
     color: #333;
     text-align: left;
 }
-
 /* Select Fields */
 .filters select {
     width: 100%;
@@ -311,12 +276,10 @@ footer.footer {
     color: #333;
     transition: border-color 0.3s ease;
 }
-
 .filters select:focus {
     border-color: #00796b;
     outline: none;
 }
-
 /* Apply Button */
 .filters button {
     background-color: #00796b;
@@ -330,12 +293,10 @@ footer.footer {
     transition: background-color 0.3s ease, transform 0.2s ease;
     text-transform: uppercase;
 }
-
 .filters button:hover {
     background-color: #004d40;
     transform: scale(1.05);
 }
-
 /* Media Queries for Responsive Design */
 @media (min-width: 768px) {
     .filters {
@@ -358,7 +319,6 @@ footer.footer {
         padding: 0.75rem 1.5rem;
     }
 }
-
 @media (min-width: 1024px) {
     .filters {
         max-width: 800px;
@@ -368,14 +328,12 @@ footer.footer {
         font-size: 2.2rem;
     }
 }
-
 /* Economies Section */
 .economy-summary {
     display: flex;
     justify-content: space-between;
     margin-top: 2rem;
 }
-
 .economy-item {
     width: 45%;
     background: #fff;
@@ -383,59 +341,48 @@ footer.footer {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 .economy-item h3 {
     color: #00796b;
 }
-
 .savings {
     font-size: 1.2rem;
     color: #333;
     margin: 1rem 0;
 }
-
 .economy-tips {
     background: #e0f2f1;
     padding: 2rem;
     border-radius: 8px;
     margin-top: 2rem;
 }
-
 .economy-tips h3 {
     color: #00796b;
 }
-
 .economy-tips ul {
     list-style: none;
     padding-left: 0;
 }
-
 .economy-tips ul li {
     margin-bottom: 1rem;
     font-size: 1rem;
 }
-
 .consumption-tips {
     background: #e0f2f1;
     padding: 2rem;
     border-radius: 8px;
     margin-top: 2rem;
 }
-
 .consumption-tips h3 {
     color: #00796b;
 }
-
 .consumption-tips ul {
     list-style: none;
     padding-left: 0;
 }
-
 .consumption-tips ul li {
     margin-bottom: 1rem;
     font-size: 1rem;
 }
-
 /* Economy Chart Section */
 .economy-chart {
     margin-top: 2rem;
@@ -445,13 +392,11 @@ footer.footer {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
-
 .economy-chart, canvas {
     max-width: 100%;
     width:50%;
     height: auto;
 }
-
 .consumption-chart {
     margin-top: 2rem;
     padding: 1rem;
@@ -460,38 +405,31 @@ footer.footer {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
-
 .consumption-chart, canvas {
     max-width: 100%;
     width:50%;
     height: auto;
 }
-
 .economy-table {
     margin-top: 2rem;
 }
-
 .economy-table table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1rem;
 }
-
 .economy-table th, .economy-table td {
     padding: 1rem;
     text-align: left;
     border: 1px solid #ddd;
 }
-
 .economy-table th {
     background-color: #00796b;
     color: #fff;
 }
-
 .economy-table tr:nth-child(even) {
     background-color: #f4f4f9;
 }
-
 /* Economy Filters Section */
 .economy-filters {
     background-color: #fff;
@@ -500,13 +438,11 @@ footer.footer {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 .economy-filters h2 {
     font-size: 1.5rem;
     color: #00796b;
     margin-bottom: 1.5rem;
 }
-
 /* Filter Section */
 .filter-section {
     display: flex;
@@ -517,12 +453,10 @@ footer.footer {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 .filter-section label {
     font-size: 1rem;
     color: #333;
 }
-
 .filter-section select {
     padding: 0.625rem;
     border: 1px solid #ddd;
@@ -530,27 +464,22 @@ footer.footer {
     background-color: #f9f9f9;
     transition: border-color 0.3s ease;
 }
-
 .filter-section select:focus {
     border-color: #00796b;
 }
-
 .filter-group {
     margin-bottom: 1rem;
 }
-
 .filter-group label {
     font-size: 1rem;
     color: #333;
 }
-
 .filter-group select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
 }
-
 .btn-apply {
     background-color: #00796b;
     color: white;
@@ -560,13 +489,9 @@ footer.footer {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-
 .btn-apply:hover {
     background-color: #004d40;
 }
-
-
-
 /* Media Queries for Economy Section */
 @media (min-width: 768px) {
     .economy-item {
@@ -577,14 +502,11 @@ footer.footer {
         font-size: 1.1rem;
     }
 }
-
 @media (min-width: 1024px) {
     .economy-item {
         width: 30%;
     }
 }
-
-
 /* Global Styles */
 body {
     margin: 0;
@@ -593,13 +515,11 @@ body {
     background-color: #f4f4f9;
     color: #333;
 }
-
 .container {
     width: 90%;
     margin: auto;
     max-width: 1200px;
 }
-
 /* Header */
 header.header {
     background: #00796b;
@@ -607,11 +527,9 @@ header.header {
     padding: 1rem 0;
     text-align: center;
 }
-
 header .nav {
     margin-top: 1rem;
 }
-
 header .nav a {
     color: #fff;
     text-decoration: none;
@@ -620,12 +538,10 @@ header .nav a {
     border-radius: 5px;
     transition: background 0.3s ease;
 }
-
 header .nav a:hover,
 header .nav a.active {
     background: #004d40;
 }
-
 /* Filter Section */
 .filter-section {
     background-color: #ffffff;
@@ -636,12 +552,10 @@ header .nav a.active {
     max-width: 90%;
     text-align: center;
 }
-
 .filter-section label {
     font-size: 1rem;
     color: #333;
 }
-
 .filter-section select {
     padding: 0.625rem;
     border: 1px solid #ddd;
@@ -649,11 +563,9 @@ header .nav a.active {
     background-color: #f9f9f9;
     transition: border-color 0.3s ease;
 }
-
 .filter-section select:focus {
     border-color: #00796b;
 }
-
 /* Group Configuration Section */
 .group-configuration {
     background-color: #ffffff;
@@ -664,11 +576,9 @@ header .nav a.active {
     max-width: 90%;
     text-align: center;
 }
-
 .group-configuration h3 {
     color: #00796b;
 }
-
 #createGroupBtn {
     background-color: #00796b;
     color: white;
@@ -679,11 +589,9 @@ header .nav a.active {
     font-size: 1rem;
     transition: background-color 0.3s ease;
 }
-
 #createGroupBtn:hover {
     background-color: #004d40;
 }
-
 .modal {
     display: none;
     position: fixed;
@@ -697,7 +605,6 @@ header .nav a.active {
     background-color: rgba(0, 0, 0, 0.4);
     padding-top: 60px;
 }
-
 .modal-content {
     background-color: #fff;
     margin: 5% auto;
@@ -707,21 +614,18 @@ header .nav a.active {
     max-width: 500px;
     align-items: center;
 }
-
 .close {
     color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
 }
-
 .close:hover,
 .close:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
 }
-
 /* Activity Log */
 .activity-log {
     background-color: #ffffff;
@@ -732,21 +636,17 @@ header .nav a.active {
     max-width: 90%;
     text-align: center;
 }
-
 .activity-log h3 {
     color: #00796b;
 }
-
 #logList {
     list-style-type: none;
     padding-left: 0;
 }
-
 #logList li {
     margin-bottom: 1rem;
     font-size: 1rem;
 }
-
 /* Advanced Settings */
 .advanced-settings {
     background-color: #ffffff;
@@ -757,21 +657,17 @@ header .nav a.active {
     max-width: 90%;
     text-align: center;
 }
-
 .advanced-settings h3 {
     color: #00796b;
 }
-
 #advancedSettingsForm {
     display: flex;
     flex-direction: column;
 }
-
 #advancedSettingsForm label {
     margin-bottom: 0.5rem;
     color: #333;
 }
-
 #advancedSettingsForm input {
     margin-bottom: 1rem;
     padding: 0.625rem;
@@ -779,7 +675,6 @@ header .nav a.active {
     border: 1px solid #ddd;
     border-radius: 5px;
 }
-
 /* Alert Configuration */
 .alert-configuration {
     background-color: #ffffff;
@@ -790,16 +685,13 @@ header .nav a.active {
     max-width: 90%;
     text-align: center;
 }
-
 .alert-configuration h3 {
     color: #00796b;
 }
-
 #alertConfigForm {
     display: flex;
     flex-direction: column;
 }
-
 #alertConfigForm select,
 #alertConfigForm input {
     padding: 0.625rem;
@@ -808,7 +700,6 @@ header .nav a.active {
     border: 1px solid #ddd;
     border-radius: 5px;
 }
-
 /* Dashboard */
 .dashboard {
     margin-top: 2rem;
@@ -818,17 +709,14 @@ header .nav a.active {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 .dashboard h3 {
     color: #00796b;
 }
-
 canvas {
     max-width: 100%;
     height: auto;
     margin: auto;
 }
-
 /* Schedule Configuration */
 .schedule-configuration {
     background-color: #ffffff;
@@ -839,20 +727,16 @@ canvas {
     max-width: 90%;
     text-align: center;
 }
-
 .schedule-configuration h3 {
     color: #00796b;
 }
-
 #scheduleForm {
     display: flex;
     flex-direction: column;
 }
-
 #scheduleForm label {
     margin-bottom: 0.5rem;
 }
-
 #scheduleForm input,
 #scheduleForm select {
     padding: 0.625rem;
@@ -861,13 +745,11 @@ canvas {
     border: 1px solid #ddd;
     border-radius: 5px;
 }
-
 /* Export Section */
 .export-section {
     text-align: center;
     margin-top: 2rem;
 }
-
 #exportConfigBtn {
     background-color: #00796b;
     color: white;
@@ -879,11 +761,9 @@ canvas {
     font-size: 1rem;
     transition: background-color 0.3s ease;
 }
-
 #exportConfigBtn:hover {
     background-color: #004d40;
 }
-
 /* Footer */
 footer.footer {
     text-align: center;
@@ -891,7 +771,6 @@ footer.footer {
     color: #fff;
     padding: 1rem 0;
 }
-
 /* Media Queries for Responsive Design */
 @media (min-width: 768px) {
     .filter-section {
@@ -902,13 +781,11 @@ footer.footer {
         width: 48%;
     }
 }
-
 @media (min-width: 1024px) {
     .filter-section select {
         width: 32%;
     }
 }
-
 .submit {
     background-color: #00796b;
     color: white;
@@ -921,7 +798,6 @@ footer.footer {
     transition: background-color 0.3s ease;
     align-self: center;
 }
-
 /* Positionnement de l'icône du compte */
 .account-menu {
     position: absolute;
@@ -929,7 +805,6 @@ footer.footer {
     right: 20px;
     display: inline-block;
 }
-
 .account-icon {
     width: 40px;
     height: 40px;
@@ -938,11 +813,9 @@ footer.footer {
     border: 2px solid #ccc;
     transition: border-color 0.3s;
 }
-
 .account-icon:hover {
     border-color: #16a085;
 }
-
 /* Menu déroulant */
 .dropdown-menu {
     display: none; /* Masqué par défaut */
@@ -959,15 +832,12 @@ footer.footer {
     margin: 0;
     z-index: 10;
 }
-
 .dropdown-menu li {
     border-bottom: 1px solid #ddd;
 }
-
 .dropdown-menu li:last-child {
     border-bottom: none;
 }
-
 .dropdown-menu a {
     display: block;
     padding: 10px 20px;
@@ -976,17 +846,14 @@ footer.footer {
     font-size: 1rem;
     transition: background-color 0.3s;
 }
-
 .dropdown-menu a:hover {
     background-color: #16a085;
     color: white;
 }
-
 /* Affichage du menu au survol */
 .account-menu:hover .dropdown-menu {
     display: block;
 }
-
 .change-password-section {
     max-width: 500px;
     margin: 50px auto;
@@ -995,23 +862,19 @@ footer.footer {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 .change-password-section h2 {
     text-align: center;
     margin-bottom: 20px;
     color: #333;
 }
-
 .form-group {
     margin-bottom: 15px;
 }
-
 .form-group label {
     display: block;
     margin-bottom: 5px;
     color: #555;
 }
-
 .form-group input {
     width: 100%;
     padding: 10px;
@@ -1019,12 +882,10 @@ footer.footer {
     border: 1px solid #ddd;
     border-radius: 5px;
 }
-
 .form-group input:focus {
     border-color: #16a085;
     outline: none;
 }
-
 .btn {
     display: block;
     width: 100%;
@@ -1039,55 +900,45 @@ footer.footer {
     cursor: pointer;
     transition: background-color 0.3s;
 }
-
 .btn:hover {
     background-color: #12876f;
 }
-
 .sensor-actuators {
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 8px;
     margin: 20px auto;
 }
-
 .sensor-actuators h3 {
     text-align: center;
     margin-bottom: 20px;
     color: #333;
 }
-
 .room {
     margin-bottom: 30px;
 }
-
 .room h4 {
     margin-bottom: 10px;
     color: #555;
 }
-
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 table th, table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
 }
-
 table th {
     background-color: #16a085;
     color: white;
 }
-
 table td {
     background-color: #fff;
 }
-
 .btn {
     padding: 8px 12px;
     font-size: 0.9rem;
@@ -1098,28 +949,23 @@ table td {
     cursor: pointer;
     transition: background-color 0.3s;
 }
-
 .btn:hover {
     background-color: #12876f;
 }
-
 .btn-edit {
     background-color: #3498db;
 }
-
 .btn-edit:hover {
     background-color: #2874a6;
 }
-
 .btn-delete {
     background-color: #e74c3c;
 }
-
 .btn-delete:hover {
     background-color: #c0392b;
 }
-
 #consommationPieChart {
+    flex: 1;
     padding: 1rem;
     width: 70%;              /* Le graphique prendra toute la largeur de son conteneur */
     height: 20rem;            /* Hauteur par défaut (ajustée pour les petites tailles d'écran) */
@@ -1129,7 +975,6 @@ table td {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre légère autour du graphique */
     border-radius: 10px;      /* Coins arrondis pour une apparence moderne */
 }
-
 /* Pour les écrans plus petits comme les tablettes */
 @media (max-width: 768px) {
     #consommationPieChart {
@@ -1137,7 +982,6 @@ table td {
         max-width: 90%; /* Augmenter la largeur relative pour les tablettes */
     }
 }
-
 /* Pour les petits écrans comme les smartphones */
 @media (max-width: 480px) {
     #consommationPieChart {
@@ -1145,7 +989,6 @@ table td {
         max-width: 90%; /* Réduire la largeur pour s'ajuster aux petits écrans */
     }
 }
-
 /* Pour les très petits écrans (si nécessaire) */
 @media (max-width: 360px) {
     #consommationPieChart {
@@ -1153,14 +996,19 @@ table td {
         max-width: 100%; /* S'assurer que le graphique ne dépasse pas la largeur de l'écran */
     }
 }
-
 /* Style pour le canvas du graphique linéaire */
 #lineChart {
-    width: 100%;        /* Largeur du canvas à 100% du conteneur parent */
-    height: 30rem;      /* Hauteur du canvas définie en rem, adaptable en fonction de la taille de la police */
-    max-width: 100%;    /* S'assure que le canvas ne dépasse pas la largeur de son conteneur parent */
-    margin: 2rem auto;  /* Ajoute un espacement autour du canvas */
-    display: block;     /* S'assure que le canvas est un bloc pour un meilleur contrôle de la mise en page */
+    flex: 1;
+    padding: 1rem;
+    width: 70%;              /* Le graphique prendra toute la largeur de son conteneur */
+    height: 20rem;            /* Hauteur par défaut (ajustée pour les petites tailles d'écran) */
+    max-width: 30rem;         /* Largeur maximale, ne dépassant pas 600px */
+    margin: auto;        /* Centrer horizontalement avec un petit espacement autour */
+    display: block;           /* Faire en sorte que le canvas soit un élément bloc */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre légère autour du graphique */
+    border-radius: 10px;      /* Coins arrondis pour une apparence moderne */
+    align-items: center;
+    align-self: center;
 }
 
 /* Media query pour les écrans plus petits (tablettes et téléphones) */
@@ -1169,10 +1017,232 @@ table td {
         height: 25rem;   /* Réduit la hauteur sur les petits écrans */
     }
 }
-
 /* Media query pour les très petits écrans (téléphones) */
 @media (max-width: 480px) {
     #lineChart {
         height: 20rem;   /* Réduit encore la hauteur pour les très petits écrans */
     }
+}
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 400px;
+    width: 400px;
+}
+.chart-tooltip {
+    position: absolute;
+    background: rgba(50, 50, 50, 0.8);
+    color: #fff;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    pointer-events: none;
+    display: none;
+}
+.chart-tooltip.show {
+    display: block;
+}
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+body.dark-mode header.header {
+    background: #1e1e1e;
+}
+body.dark-mode .login-form, 
+body.dark-mode .filters, 
+body.dark-mode .summary, 
+body.dark-mode .economy-chart, 
+body.dark-mode .sensor, 
+body.dark-mode .actuator {
+    background-color: #1f1f1f;
+    color: #e0e0e0;
+}
+body.dark-mode button, 
+body.dark-mode .btn-toggle {
+    background-color: #333;
+    color: #fff;
+}
+body.dark-mode button:hover, 
+body.dark-mode .btn-toggle:hover {
+    background-color: #555;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.card {
+    animation: fadeIn 0.6s ease-in-out;
+}
+.activity-log {
+    background: #f9f9f9;
+    border-left: 4px solid #00796b;
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.schedule-configuration .schedule-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f4f4f9;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.schedule-configuration .schedule-item button {
+    background: #00796b;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #00796b;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+.consumption-table table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+    font-size: 1rem;
+}
+.consumption-table th,
+.consumption-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+.consumption-table th {
+    background-color: #00796b;
+    color: white;
+    font-weight: bold;
+}
+.consumption-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+.consumption-table tr:hover {
+    background-color: #f1f1f1;
+}
+.charts-container {
+    flex: 1;
+    align-items: center;
+    display: flex;
+    gap: 20px;
+    
+}
+/* .charts-container canvas {
+    flex: 1;
+} */
+.hidden {
+    display: none;
+}
+.visible {
+    display: block;
+}
+
+#tableBody {
+    font-size: 1rem; /* Taille de texte adaptée */
+    text-align: left; /* Alignement du contenu */
+    color: #333; /* Couleur de texte principale */
+    background-color: #fff; /* Fond blanc pour les lignes */
+}
+
+#tableBody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Fond pour les lignes paires */
+}
+
+#tableBody tr:nth-child(odd) {
+    background-color: #fefefe; /* Fond pour les lignes impaires */
+}
+
+#tableBody td {
+    padding: 12px; /* Espacement interne pour les cellules */
+    border: 1px solid #ddd; /* Bordures discrètes */
+    vertical-align: middle; /* Alignement vertical */
+}
+
+#tableBody tr:hover {
+    background-color: #f1f1f1; /* Fond lors du survol */
+}
+/* Animation de glissement vers la gauche */
+.slide-left {
+    animation: slide-left 0.5s forwards;
+}
+
+@keyframes slide-left {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-1%);
+    }
+}
+
+/* Animation de glissement vers la droite */
+.slide-right {
+    animation: slide-right 0.5s forwards;
+}
+
+@keyframes slide-right {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Apparition en fondu pour le tableau */
+.fade-in {
+    animation: fade-in 0.5s forwards;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Ajustement des positions */
+#pieChartContainer {
+    flex: 1;
+    width: 50%;
+    max-width: 45%; /* Limite la largeur individuelle */
+    min-width: 300px; /* Empêche les graphiques de devenir trop petits */
+    transition: transform 0.5s ease-out;
+    overflow: hidden; /* Évite tout débordement de contenu */
+    box-sizing: border-box; /* Inclut les bordures et les paddings dans la taille */
+}
+
+
+#consumptionTable {
+    margin-top: 20px;
+    transition: opacity 0.5s ease-out;
 }

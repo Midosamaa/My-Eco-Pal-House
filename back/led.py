@@ -1,11 +1,13 @@
 from flask import Flask, request, jsonify, render_template_string, render_template, session, redirect, url_for
 from flask_cors import CORS
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 import paho.mqtt.client as mqtt  # Import de la bibliothèque MQTT
 import json  # Pour traiter les messages JSON
 import hashlib
 from datetime import datetime
+import requests
+import random
 
 app = Flask(__name__, template_folder="../front/html", static_folder="../static")
 CORS(app)
@@ -31,6 +33,10 @@ def check_session():
     valeur = session.get('test_key', 'Aucune valeur trouvée dans la session.')
     return f"Valeur dans la session : {valeur}"
 
+
+#################################################
+
+#################################################
 
 @app.route('/consommation', methods=['GET', 'POST'])
 def consommation():
@@ -197,7 +203,7 @@ def connect_db():
     return conn
 
 # Configuration MQTT
-MQTT_BROKER = "192.168.1.17" #"172.20.10.3"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
+MQTT_BROKER = "192.168.1.17" #"192.168.231.254" #"192.168.1.17" #"172.20.10.3"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
 MQTT_PORT = 1883  # Port par défaut de MQTT
 MQTT_TOPIC = "maison/capteurs/dht11"  # Topic pour recevoir les données de température et d'humidité
 LED_TOPIC = "maison/led"  # Topic pour envoyer des commandes pour allumer ou éteindre la LED
