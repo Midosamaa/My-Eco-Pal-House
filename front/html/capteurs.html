@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capteurs et Actionneurs</title>
-    <link rel="stylesheet" href="../../static/css/styles.css"></head>
+    <link rel="stylesheet" href="../../static/css/styles.css">
+    <!-- Add Three.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+    <!-- Importing OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+</head>
 <body>
 
     <header class="header">
@@ -25,96 +30,220 @@
         </div>
     </header>
 
+<!-- Hero Section -->
+<section class="hero hero-sensors">
+    <div class="container">
+        <h2>Vos Capteurs et Actionneurs</h2>
+        <p>Gérez et surveillez vos appareils à distance.</p>
+    </div>
+</section>
+
+
     <section class="sensor-actuator">
         <div class="container">
             <h2>Capteurs</h2>
-
             <!-- Liste des capteurs -->
             <div class="sensor-list">
-                <div class="sensor">
-                    <h3>Capteur de Température</h3>
-                    <p>État : <span class="status on">Activé</span></p>
-                    <button class="btn-toggle">Désactiver</button>
-                </div>
-                <div class="sensor">
-                    <h3>Capteur de Humidité</h3>
-                    <p>État : <span class="status off">Désactivé</span></p>
-                    <button class="btn-toggle">Activer</button>
-                </div>
-                <div class="sensor">
-                    <h3>Capteur de CO2</h3>
-                    <p>État : <span class="status on">Activé</span></p>
-                    <button class="btn-toggle">Désactiver</button>
-                </div>
+                {% for sensor in sensors_and_actuators %}
+                    {% if sensor.type.startswith('Capteur') %}
+                        <div class="sensor">
+                            <h3>{{ sensor.type }}</h3>
+                            <p>État : <span class="status {{ 'on' if sensor.etat == 'on' else 'off' }}">{{ sensor.etat }}</span></p>
+                            <div class="toggle-container">
+                                <div class="toggle-circle {{ 'on' if sensor.etat == 'on' else 'off' }}" data-id="{{ sensor.ID }}"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
 
             <h2>Actionneurs</h2>
-
             <!-- Liste des actionneurs -->
             <div class="actuator-list">
-                <div class="actuator">
-                    <h3>Chauffage</h3>
-                    <p>État : <span class="status on">Allumé</span></p>
-                    <button class="btn-toggle">Éteindre</button>
-                </div>
-                <div class="actuator">
-                    <h3>Climatisation</h3>
-                    <p>État : <span class="status off">Éteint</span></p>
-                    <button class="btn-toggle">Allumer</button>
-                </div>
-                <div class="actuator">
-                    <h3>Éclairage</h3>
-                    <p>État : <span class="status on">Allumé</span></p>
-                    <button class="btn-toggle">Éteindre</button>
-                </div>
+                {% for actuator in sensors_and_actuators %}
+                    {% if actuator.type.startswith('Actionneur') %}
+                        <div class="actuator">
+                            <h3>{{ actuator.type }}</h3>
+                            <p>État : <span class="status {{ 'on' if actuator.etat == 'on' else 'off' }}">{{ actuator.etat }}</span></p>
+                            <div class="toggle-container">
+                                <div class="toggle-circle {{ 'on' if actuator.etat == 'on' else 'off' }}" data-id="{{ actuator.ID }}"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
+    </section>
+
+    <!-- 3D Scene for house -->
+    <section class="house-3d">
+        <div id="houseSceneContainer"></div>
     </section>
 
     <footer class="footer">
         <p>© 2024 My Eco Pal House</p>
     </footer>
-
     <script>
-        // Script pour gérer l'activation et la désactivation des capteurs et actionneurs
-        const buttons = document.querySelectorAll('.btn-toggle');
-        
-        buttons.forEach(button => {
-            button.addEventListener('click', () => {
-                const statusSpan = button.previousElementSibling.querySelector('.status');
-                const isActuator = button.closest('.actuator') !== null;  // Vérifie si c'est un actionneur
+        // Event listener for toggle button
+        document.querySelectorAll('.toggle-circle').forEach(toggle => {
+            toggle.addEventListener('click', function () {
+                const sensorId = this.dataset.id;
+                const currentState = this.classList.contains('on') ? 'on' : 'off';
+                const newState = currentState === 'on' ? 'off' : 'on';  // Toggle the state
+
+                // Update the circle state visually
+                this.classList.toggle('on');
+                this.classList.toggle('off');
+
+                // Update the state text color and status
+                const statusText = this.closest('.sensor') ? 
+                    this.closest('.sensor').querySelector('.status') : 
+                    this.closest('.actuator').querySelector('.status');
                 
-                if (isActuator) {
-                    // Pour les actionneurs (Chauffage, Climatisation, etc.)
-                    if (statusSpan.classList.contains('on')) {
-                        statusSpan.classList.remove('on');
-                        statusSpan.classList.add('off');
-                        statusSpan.textContent = 'Éteint';
-                        button.textContent = 'Allumer';
-                    } else {
-                        statusSpan.classList.remove('off');
-                        statusSpan.classList.add('on');
-                        statusSpan.textContent = 'Allumé';
-                        button.textContent = 'Éteindre';
+                // Update the status text and color based on new state
+                statusText.textContent = newState; // Update text to show "on" or "off"
+                statusText.classList.toggle('on', newState === 'on');
+                statusText.classList.toggle('off', newState === 'off');
+
+                // Send POST request to update state in the backend
+                fetch('/capteurs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'sensor_id': sensorId,
+                        'new_state': newState
+                    })
+                }).then(response => {
+                    if (!response.ok) {
+                        alert('Failed to update state');
                     }
-                } else {
-                    // Pour les capteurs (Température, Humidité, etc.)
-                    if (statusSpan.classList.contains('on')) {
-                        statusSpan.classList.remove('on');
-                        statusSpan.classList.add('off');
-                        statusSpan.textContent = 'Désactivé';
-                        button.textContent = 'Activer';
-                    } else {
-                        statusSpan.classList.remove('off');
-                        statusSpan.classList.add('on');
-                        statusSpan.textContent = 'Activé';
-                        button.textContent = 'Désactiver';
-                    }
-                }
+                });
             });
         });
     </script>
-    
+    <script>
+        // Initialize the 3D Scene using Three.js
+let scene, camera, renderer, controls;
+let highlightedRoom = null;
+let rooms = []; // Store rooms for easy access later
 
+scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf9f9f9);
+camera = new THREE.PerspectiveCamera(75, window.innerWidth / 600, 0.1, 1000);
+renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, 600);
+document.getElementById("houseSceneContainer").appendChild(renderer.domElement);
+
+// Controls to move around the scene
+controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+// Add ambient lighting
+const light = new THREE.AmbientLight(0xf9f9f9, 1);
+scene.add(light);
+
+// Create a simple 3D box to represent the house
+// const houseGeometry = new THREE.BoxGeometry(60, 50, 60); // Simple box shape (width, height, depth)
+// const houseMaterial = new THREE.MeshBasicMaterial({ color: 0x00796b, wireframe: true }); // Green wireframe material
+// const house = new THREE.Mesh(houseGeometry, houseMaterial);
+// scene.add(house);
+
+// Create the rooms and sensors/actuators
+{% for room in rooms %}
+    // Create a unique room geometry and material
+    const roomGeometry_{{ room.id }} = new THREE.BoxGeometry(20, 20, 20);
+    const roomMaterial_{{ room.id }} = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+    const roomMesh_{{ room.id }} = new THREE.Mesh(roomGeometry_{{ room.id }}, roomMaterial_{{ room.id }});
+    roomMesh_{{ room.id }}.position.set({{ room.location_x }}, {{ room.location_y }}, {{ room.location_z }});
+    roomMesh_{{ room.id }}.userData = { name: "{{ room.name }}", type: "room" };
+    scene.add(roomMesh_{{ room.id }}); 
+    rooms.push(roomMesh_{{ room.id }}); // Store the room in the rooms array for easy access later
+
+    // Add sensors/actuators to the room
+    {% for sensor in room.sensors_and_actuators %}
+        const glowingDot_{{ sensor.id }} = new THREE.Mesh(
+            new THREE.SphereGeometry(0.5),
+            new THREE.MeshBasicMaterial({ color: 0xffff00 })
+        );
+        glowingDot_{{ sensor.id }}.position.set({{ sensor.x_coord }}, {{ sensor.y_coord }}, {{ sensor.z_coord }});
+        glowingDot_{{ sensor.id }}.userData = {
+            info: "{{ sensor.type }}: {{ sensor.ref_commande }}",
+            type: "sensor",
+            room: roomMesh_{{ room.id }} // Associate the sensor with its room
+        };
+        scene.add(glowingDot_{{ sensor.id }});
+    {% endfor %}
+{% endfor %}
+
+// Set the camera position
+camera.position.set(85, 30, 40);
+camera.lookAt(0, 0, 0);
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update(); // Update controls for user interaction
+    renderer.render(scene, camera);
+}
+animate();
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / 600;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, 600);
+});
+
+// Raycasting for hover interaction
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+renderer.domElement.addEventListener('mousemove', (event) => {
+    // Convert mouse position to normalized device coordinates
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Update raycaster with camera and mouse
+    raycaster.setFromCamera(mouse, camera);
+
+    // Find intersected objects
+    const intersects = raycaster.intersectObjects(scene.children);
+
+    let roomToHighlight = null;
+
+    // Check for intersection with a sensor/actuator
+    for (let i = 0; i < intersects.length; i++) {
+        const intersectedObject = intersects[i].object;
+
+        if (intersectedObject.userData.type === "sensor") {
+            roomToHighlight = intersectedObject.userData.room;
+            break;
+        }
+    }
+
+    if (roomToHighlight) {
+        if (highlightedRoom !== roomToHighlight) {
+            // Reset previous room's color to original (dim)
+            if (highlightedRoom) {
+                highlightedRoom.material.color.set(0x999999); // Dim previous room
+            }
+
+            // Highlight the room by making it brighter
+            roomToHighlight.material.color.set(0xffff00); // Bright yellow
+            highlightedRoom = roomToHighlight;
+        }
+    } else {
+        // Reset the room highlighting if no object is hovered
+        if (highlightedRoom) {
+            highlightedRoom.material.color.set(0x999999); // Dim the highlighted room
+            highlightedRoom = null;
+        }
+    }
+});
+
+    </script>    
+    
+    
 </body>
 </html>

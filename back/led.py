@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template_string, render_template, session, redirect, url_for
+from flask import Flask, request, jsonify, render_template_string, render_template, session, redirect, url_for,flash
 from flask_cors import CORS
 import sqlite3
 from datetime import datetime, timedelta
@@ -35,6 +35,11 @@ def check_session():
 
 
 #################################################
+# Fonction de connexion à la base de données
+def connect_db():
+    conn = sqlite3.connect('../database/logement.db')
+    conn.row_factory = sqlite3.Row  # Pour accéder aux colonnes par leur nom
+    return conn
 
 #################################################
 
@@ -63,9 +68,10 @@ def consommation():
         cursor.execute("""
             SELECT type, date_fact, val_consommee, montant
             FROM facture
-            WHERE logement_id = ? AND date_fact LIKE ?
-            ORDER BY date_fact
-        """, (logement_id, f'{date_filter}%'))
+            WHERE logement_id = ?
+            ORDER BY type, date_fact
+        """, (logement_id,))
+
     elif selected_period == 'year':
         year_filter = datetime.now().strftime('%Y')
         cursor.execute("""
@@ -106,6 +112,45 @@ def consommation():
     return render_template('consommation.html', consommations=consommations, period=selected_period)
 
 
+@app.route('/api/latest-consumption', methods=['GET'])
+def latest_consumption():
+    user_id = session.get('user_id')
+    if user_id is None:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT logement_id FROM users WHERE id = ?", (user_id,))
+    logement_row = cursor.fetchone()
+
+    if logement_row is None:
+        return jsonify({'error': 'Logement introuvable'}), 404
+
+    logement_id = logement_row[0]
+    date_filter = datetime.now().strftime('%Y-%m-%d')
+
+    # Fetch the latest consumption for each type
+    cursor.execute("""
+        SELECT type, val_consommee, date_fact
+        FROM facture
+        WHERE logement_id = ? AND date_fact LIKE ?
+        GROUP BY type
+        ORDER BY date_fact DESC
+    """, (logement_id, f'{date_filter}%'))
+
+    latest_consumptions = cursor.fetchall()
+
+    # Format the results
+    consumption_data = {}
+    for type_conso, val_consommee, date_fact in latest_consumptions:
+        consumption_data[type_conso] = {
+            'date': date_fact,
+            'consumption': val_consommee
+        }
+
+    conn.close()
+    return jsonify(consumption_data)
+
 @app.route('/factures/<int:id>', methods=['DELETE'])
 def supprimer_facture(id):
     try:
@@ -130,9 +175,60 @@ def supprimer_facture(id):
         cursor.close()
         conn.close()
 
-@app.route('/capteurs')
+@app.route('/capteurs', methods=['GET', 'POST'])
 def capteurs():
-    return render_template('capteurs.html')
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('login'))  # Redirect if not logged in
+
+    conn = connect_db()  # Assuming connect_db() connects to your SQLite database
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        # Handle state update for sensors or actuators
+        sensor_id = request.form.get('sensor_id')
+        new_state = request.form.get('new_state')
+
+        if sensor_id and new_state:
+            # Update the state of the sensor/actionneur in the database
+            cursor.execute("""
+                UPDATE capt_act
+                SET etat = ?
+                WHERE ID = ?
+            """, (new_state, sensor_id))
+            conn.commit()
+
+    # Fetch the logement_id associated with the logged-in user
+    cursor.execute("SELECT logement_id FROM users WHERE id = ?", (user_id,))
+    result = cursor.fetchone()
+    
+    if result is None:
+        return "No logement found for this user", 404  # Handle case where no logement is found for the user
+
+    logement_id = result[0]  # Extract logement_id from the tuple
+
+    # Query the house with the logement_id
+    cursor.execute("SELECT * FROM logement WHERE id = ?", (logement_id,))
+    house = cursor.fetchone()
+
+    # Query rooms in the house based on the logement_id
+    cursor.execute("SELECT * FROM piece WHERE logement_id = ?", (logement_id,))
+    rooms = cursor.fetchall()
+
+    # Query sensors/actuators in the rooms
+    cursor.execute("""
+        SELECT capt_act.*, piece.name AS room_name
+        FROM capt_act
+        JOIN piece ON capt_act.ref_piece = piece.ID
+        WHERE piece.logement_id = ?
+    """, (logement_id,))
+    sensors_and_actuators = cursor.fetchall()
+
+    # Close the connection
+    conn.close()
+
+    # Render the template with data
+    return render_template('capteurs.html', house=house, rooms=rooms, sensors_and_actuators=sensors_and_actuators)
 
 @app.route('/economies')
 def economies():
@@ -196,14 +292,9 @@ def logout():
 
 
 
-# Fonction de connexion à la base de données
-def connect_db():
-    conn = sqlite3.connect('../database/logement.db')
-    conn.row_factory = sqlite3.Row  # Pour accéder aux colonnes par leur nom
-    return conn
 
 # Configuration MQTT
-MQTT_BROKER = "192.168.1.17" #"192.168.231.254" #"192.168.1.17" #"172.20.10.3"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
+MQTT_BROKER = "192.168.53.254" #"172.20.10.2"  #"192.168.125.254" #"192.168.11.114" # "192.168.125.254" #"192.168.137.254" #"192.168.1.16"#192.168.172.254"#"192.168.1.17" #"192.168.231.254" #"192.168.1.17" #"172.20.10.3"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
 MQTT_PORT = 1883  # Port par défaut de MQTT
 MQTT_TOPIC = "maison/capteurs/dht11"  # Topic pour recevoir les données de température et d'humidité
 LED_TOPIC = "maison/led"  # Topic pour envoyer des commandes pour allumer ou éteindre la LED
@@ -237,7 +328,7 @@ def on_message(client, userdata, msg):
             print(f"Mesure ajoutée: Temp: {temp}°C, Humid: {humid}%")
 
             # Si la température dépasse 29°C, allumer la LED
-            if temp > 25:
+            if temp > 20:
                 client.publish(LED_TOPIC, "ON")  # Allumer la LED
                 print("LED allumée")
             else:
@@ -246,7 +337,24 @@ def on_message(client, userdata, msg):
 
     except Exception as e:
         print(f"Erreur dans le traitement des données : {e}")
+@app.route('/update_state', methods=['POST'])
+def update_state():
+    data = request.get_json()
+    sensor_id = data.get('sensor_id')
+    state = data.get('state')
 
+    # Connect to the database
+    conn = sqlite3.connect('your_database.db')
+    cursor = conn.cursor()
+
+    # Update the sensor state in the database
+    cursor.execute("UPDATE capt_act SET etat = ? WHERE ID = ?", (state, sensor_id))
+    conn.commit()
+
+    # Close the database connection
+    conn.close()
+
+    return jsonify({'success': True})
 @app.route('/login', methods=['POST'])
 def login():
     email = request.form.get('email')
@@ -389,15 +497,34 @@ def add_mesure():
 
     return jsonify({"message": "Mesure ajoutée avec succès"}), 201
 
-# Route GET pour récupérer toutes les factures
-@app.route('/factures', methods=['GET'])
-def get_factures():
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM facture')
-    factures = cursor.fetchall()
-    conn.close()
-    return jsonify([dict(row) for row in factures])
+# Route POST pour créer une nouvelle facture
+@app.route('/factures', methods=['POST'])
+def create_facture():
+    try:
+        # Get data from the incoming request
+        data = request.get_json()  # Assuming you're sending JSON data
+
+        # Extract values from the JSON payload
+        consommation_type = data['type']
+        date_fact = data['date_fact']
+        montant = data['montant']
+        consommee = data['val_consommee']
+        logement_id = data['logement_id']
+        # Insert the data into the database
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO facture (type, date_fact, montant, val_consommee, logement_id)
+            VALUES (?, ?, ?, ?, ?)
+        """, (consommation_type, date_fact, montant, consommee, logement_id))
+        conn.commit()
+        conn.close()
+
+        return jsonify({"message": "Facture created successfully!"}), 201  # Success response
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "An error occurred while creating the facture"}), 500
 
 #Route pour la consommation
 @app.route('/api/consommation', methods=['GET'])
@@ -413,43 +540,55 @@ def api_consommation():
     conn.close()
     return jsonify([dict(row) for row in data])
 
-# Route POST pour ajouter une nouvelle facture
-@app.route('/factures', methods=['POST'])
-def add_facture():
-    data = request.json
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO facture (type, date_fact, montant, val_consommee, logement_id)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (data['type'], data['date_fact'], data['montant'], data['val_consommee'], data['logement_id']))
-    conn.commit()
-    conn.close()
-    return jsonify({"message": "Facture ajoutée avec succès"}), 201
-
-#Route pour les économies
 @app.route('/api/economies', methods=['GET'])
 def api_economies():
     conn = connect_db()
     cursor = conn.cursor()
-    # Calcul d'exemple : différence entre consommation actuelle et une moyenne historique
-    cursor.execute('''
-        SELECT type, SUM(val_consommee) as consommation_actuelle,
-        AVG(val_consommee) as consommation_moyenne
+
+    # Optionnel : Récupérer un type de facture via les paramètres de l'URL
+    type_facture = request.args.get('type', None)  # Exemple : "electricity", "water", "gas"
+    filtre_type = "WHERE type = ?" if type_facture else ""
+
+    # Calcul des économies mensuelles
+    query = f'''
+        SELECT strftime('%Y-%m', date_fact) as mois, type, 
+               SUM(val_consommee) as consommation_actuelle,
+               AVG(SUM(val_consommee)) OVER (PARTITION BY type) as consommation_moyenne
         FROM facture
-        GROUP BY type
-    ''')
+        {filtre_type}
+        GROUP BY type, strftime('%Y-%m', date_fact)
+        ORDER BY mois;
+    '''
+
+    cursor.execute(query, (type_facture,) if type_facture else ())
+    
     data = []
+    economies_totales = 0  # Variable pour accumuler les économies totales
+
+    # Parcourir les résultats et calculer les économies mensuelles
     for row in cursor.fetchall():
+        mois = row['mois']
         type_facture = row['type']
         consommation_actuelle = row['consommation_actuelle']
         consommation_moyenne = row['consommation_moyenne']
         economie = consommation_moyenne - consommation_actuelle if consommation_moyenne else 0
-        data.append({"type": type_facture, "economie": economie})
+
+        # Ajouter les économies du mois à la somme totale
+        economies_totales += max(economie, 0)  # Empêcher les économies négatives
+
+        # Ajouter les données de chaque mois dans la réponse
+        data.append({
+            "mois": mois,
+            "type": type_facture,
+            "consommation_actuelle": consommation_actuelle,
+            "consommation_moyenne": consommation_moyenne,
+            "economie": economie
+        })
+
     conn.close()
-    return jsonify(data)
 
-
+    # Retourner les économies mensuelles et les économies totales
+    return jsonify({"economies_mensuelles": data, "economies_totales": round(economies_totales, 2)})
 
 
 # Route GET pour afficher une page HTML avec un camembert des factures combinées par type
@@ -562,6 +701,141 @@ def get_weather():
     
     else:
         return jsonify({"error": "Impossible de récupérer les prévisions météo"}), 400
+
+@app.route('/add_facture', methods=['POST'])
+def add_facture():
+    # Récupérer les données du formulaire
+    type_facture = request.form['type']
+    date_facture = request.form['date_fact']
+    montant = float(request.form['montant'])
+    val_consommee = float(request.form['val_consommee'])
+
+    # Connexion à la base de données
+    # Get the user ID from the session
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('login'))  # Redirect if not logged in
+
+    conn = connect_db()  # Assuming connect_db() connects to your SQLite database
+    cursor = conn.cursor()
+
+    # Fetch the logement_id associated with the logged-in user
+    cursor.execute("SELECT logement_id FROM users WHERE id = ?", (user_id,))
+    result = cursor.fetchone()
+    
+    if result is None:
+        return "No logement found for this user", 404  # Handle case where no logement is found for the user
+
+    logement_id = result[0]  # Extract logement_id from the tuple
+    # Insertion dans la base de données
+    cursor.execute("""
+        INSERT INTO facture (type, date_fact, montant, val_consommee, logement_id)
+        VALUES (?, ?, ?, ?, ?)
+    """, (type_facture, date_facture, montant, val_consommee, logement_id))
+
+    # Sauvegarder les changements et fermer la connexion
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('configuration'))  # Redirige vers la page de configuration
+
+@app.route('/add_capt_act', methods=['POST'])
+def add_capt_act():
+    # Extract data from the form submission
+    ref_commande = request.form['ref_commande']
+    type_ = request.form['type']
+    mesure = request.form.get('mesure', None)  # Optional field
+    port_com = request.form['port_com']
+    ref_piece = int(request.form['ref_piece'])  # Room ID
+    etat = request.form.get('etat', 'off')  # Default state is 'off'
+
+    # Retrieve user ID from the session
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('login'))  # Redirect to login if not authenticated
+
+    # Connect to the database
+    conn = connect_db()  # Replace with your actual DB connection function
+    cursor = conn.cursor()
+
+    try:
+        # Verify that the specified room belongs to the logged-in user
+        cursor.execute('''
+            SELECT p.id
+            FROM piece p
+            JOIN users u ON p.logement_id = u.logement_id
+            WHERE p.id = ? AND u.id = ?
+        ''', (ref_piece, user_id))
+        piece_exists = cursor.fetchone()
+
+        if not piece_exists:
+            return "Room not found or not associated with the current user", 404
+
+        # Insert the new capt/act into the database
+        cursor.execute('''
+            INSERT INTO capt_act (ref_commande, type, mesure, port_com, ref_piece, etat)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (ref_commande, type_, mesure, port_com, ref_piece, etat))
+
+        # Commit the transaction
+        conn.commit()
+        return redirect(url_for('configuration'))  # Redirect to the configuration page
+
+    except Exception as e:
+        # Rollback in case of an error
+        conn.rollback()
+        print(f"Error while adding capt/act: {e}")
+        return "An error occurred while adding the capt/act.", 500
+
+    finally:
+        # Close the database connection
+        conn.close()
+
+@app.route('/get_rooms_and_capt_act', methods=['GET'])
+def get_rooms_and_capt_act():
+    try:
+        user_id = session.get('user_id')
+        if user_id is None:
+            return jsonify({"error": "User not logged in"}), 401
+
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        # Get logement_id for the user
+        cursor.execute("SELECT logement_id FROM users WHERE id = ?", (user_id,))
+        result = cursor.fetchone()
+        if result is None:
+            return jsonify({"error": "No logement found"}), 404
+
+        logement_id = result[0]
+        # Fetch rooms and their capt/act
+        cursor.execute("""
+            SELECT p.name AS room_name, p.ID AS room_id, 
+                   c.type AS capt_act_type, c.ref_commande AS capt_act_ref, c.etat AS capt_act_state
+            FROM piece p
+            LEFT JOIN capt_act c ON p.ID = c.ref_piece
+            WHERE p.logement_id = ?
+        """, (logement_id,))
+        data = cursor.fetchall()
+
+        conn.close()
+
+        # Transform the data for JSON
+        rooms_with_capt_act = []
+        for row in data:
+            rooms_with_capt_act.append({
+                "room_name": row[0],
+                "room_id": row[1],
+                "capt_act_type": row[2],
+                "capt_act_ref": row[3],
+                "capt_act_state": row[4]
+            })
+
+        return jsonify(rooms_with_capt_act)
+
+    except Exception as e:
+        print(f"Error in /get_rooms_and_capt_act: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

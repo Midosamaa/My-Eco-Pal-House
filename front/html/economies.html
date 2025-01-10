@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Économies</title>
-    <link rel="stylesheet" href="../../static/css/styles.css"></head>
+    <link rel="stylesheet" href="../../static/css/styles.css">
+    <style>
+        /* Hide table and chart sections initially */
+        .economy-table, .charts {
+            display: none;
+        }
+    </style>
+</head>
 <body>
     <header class="header">
         <h1>Suivi des Économies</h1>
@@ -15,51 +22,47 @@
             <a href="{{ url_for('economies') }}" class="active">Économies</a>
             <a href="{{ url_for('configuration') }}">Configuration</a>
         </nav>
-        <div class="account-menu">
-            <img src="../../static/images/account-icon2.png" alt="Compte" class="account-icon">
-            <ul class="dropdown-menu">
-                <li><a href="{{ url_for('change_password') }}">Changer de mot de passe</a></li>
-                <li><a href="{{ url_for('logout') }}">Se déconnecter</a></li>
-            </ul>
-        </div>
     </header>
 
     <div class="container">
         <section class="hero">
-            <h2>Économies réalisées</h2>
-            <p>Voici un aperçu des économies réalisées sur vos consommations.</p>
+            <h2>Economies récentes</h2>
+            <p>Voici un aperçu de vos économies récentes.</p>
         </section>
-
-        <!-- Graphique combiné des économies -->
-        <section class="charts" class="economy-chart">
-            <h3>Économies globales</h3>
-            <canvas id="economyChart"></canvas>
-        </section>
-
-
-        <!-- Filtre des économies -->
-        <div class="filters">
-            <h3>Filtrer les économies</h3>
-            <select id="economy-type" class="filter">
-                <option value="all">Toutes les économies</option>
-                <option value="electricity">Électricité</option>
-                <option value="water">Eau</option>
-                <option value="gas">Gaz</option>
-            </select>
-            
-            <select id="time-period" class="filter">
-                <option value="month">Ce mois-ci</option>
-                <option value="year">Cette année</option>
-                <option value="all-time">Depuis la création</option>
-            </select>
-            
-            <button id="apply-filters">Appliquer</button>
+        
+        <!-- Boutons pour sélectionner un type de facture -->
+        <div class="buttons">
+            <button data-type="electricity">Électricité</button>
+            <button data-type="water">Eau</button>
+            <button data-type="gas">Gaz</button>
+            <button data-type="internet"> Internet </button>
         </div>
         
-        <!-- <div class="chart-container">
+        <!-- Graphique des économies -->
+        <section class="charts">
+            <h3>Graphique des économies</h3>
             <canvas id="economyChart"></canvas>
-        </div> -->
-        
+        </section>
+
+        <!-- Tableau des économies -->
+        <section class="economy-table">
+            <h3>Économies réalisées <span id="conso_type"></span></h3>
+            <table id="economy-table">
+                <thead>
+                    <tr>
+                        <th>Mois</th>
+                        <th>Consommation Actuelle</th>
+                        <th>Consommation Moyenne</th>
+                        <th>Économie</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Les données seront insérées dynamiquement -->
+                </tbody>
+            </table>
+        </section>
+
+
 
         <section class="economy-tips">
             <h3>Conseils pour économiser encore plus</h3>
@@ -70,133 +73,111 @@
             </ul>
         </section>
 
-        <section class="economy-table">
-            <h3>Tableau des économies</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Mois</th>
-                        <th>Économies réalisées</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Énergie</td>
-                        <td>Novembre 2024</td>
-                        <td>100 kWh</td>
-                    </tr>
-                    <tr>
-                        <td>Eau</td>
-                        <td>Novembre 2024</td>
-                        <td>500 Litres</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+        <footer class="footer">
+            <p>© 2024 My Eco Pal House.</p>
+        </footer>
     </div>
-
-
-
-    <footer class="footer">
-        <p>© 2024 My Eco Pal House.</p>
-    </footer>
-
-    <!-- Script pour les graphiques -->
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Données de consommation initiales, divisées par mois et année
-        const economyData = {
-            electricity: {
-                2023: [120, 110, 130, 115, 140, 135, 100, 90, 110, 120, 125, 140],
-                2024: [130, 120, 125, 135, 145, 150, 110, 100, 120, 130, 140, 150]
-            },
-            water: {
-                2023: [30, 25, 28, 22, 33, 30, 29, 26, 30, 28, 31, 32],
-                2024: [32, 30, 29, 34, 35, 36, 29, 28, 32, 30, 33, 31]
-            },
-            gas: {
-                2023: [15, 18, 12, 14, 16, 17, 14, 13, 15, 18, 20, 19],
-                2024: [19, 17, 18, 20, 22, 23, 21, 19, 18, 20, 21, 22]
-            }
-        };
-    
-        // Labels des mois
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-        // Initialisation du graphique avec toutes les économies de janvier 2024
-        const chartData = {
-            labels: months,
-            datasets: [{
-                label: 'Économies réalisées - Électricité',
-                data: economyData.electricity[2024], // Par défaut, données d'électricité de 2024
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        };
-    
-        // Configuration du graphique
-        const config = {
-            type: 'line',
-            data: chartData,
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        beginAtZero: true
+        const tableBody = document.querySelector('#economy-table tbody');
+        const economyChartCtx = document.getElementById('economyChart').getContext('2d');
+        const conso_type = document.getElementById("conso_type");
+        const economyTableSection = document.querySelector('.economy-table');
+        const economyChartSection = document.querySelector('.charts');
+        let economyChart;
+        
+        // Fonction pour charger les données et mettre à jour la page
+        async function loadEconomies(type) {
+            const response = await fetch(`/api/economies?type=${type}`);
+            const data = await response.json();
+        
+            // Récupérer les économies mensuelles et totales
+            const economiesMensuelles = data.economies_mensuelles;
+            const economiesTotales = data.economies_totales;
+        
+            // Afficher les économies totales (par exemple dans une étiquette)
+            document.querySelector('.hero p').textContent = 
+                `Vous avez économisé un total de € ${economiesTotales.toFixed(2)} pour ${type}.`;
+        
+            // Mise à jour du tableau
+            tableBody.innerHTML = '';
+            economiesMensuelles.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.mois}</td>
+                    <td>${row.consommation_actuelle.toFixed(2)}</td>
+                    <td>${row.consommation_moyenne.toFixed(2)}</td>
+                    <td>${row.economie.toFixed(2)}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        
+            // Préparer les données pour le graphique
+            const labels = economiesMensuelles.map(row => row.mois);
+            const currentValues = economiesMensuelles.map(row => row.consommation_actuelle);
+            const averageValues = economiesMensuelles.map(row => row.consommation_moyenne);
+        
+            const actualColors = currentValues.map((value, index) => 
+                value < averageValues[index] ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)'
+            );
+            const actualBorderColors = currentValues.map((value, index) => 
+                value < averageValues[index] ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)'
+            );
+        
+            // Détruire l'ancien graphe s'il existe
+            if (economyChart) economyChart.destroy();
+        
+            // Créer le nouveau graphique
+            economyChart = new Chart(economyChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: `Consommation Actuelle (${type})`,
+                            data: currentValues,
+                            backgroundColor: actualColors,
+                            borderColor: actualBorderColors,
+                            borderWidth: 1
+                        },
+                        {
+                            label: `Consommation Moyenne (${type})`,
+                            data: averageValues,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { beginAtZero: true },
+                        y: { beginAtZero: true }
                     },
-                    y: {
-                        beginAtZero: true
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
                     }
                 }
-            }
-        };
-    
-        const ctx = document.getElementById('economyChart').getContext('2d');
-        const economyChart = new Chart(ctx, config);
-    
-        // Fonction pour appliquer les filtres et mettre à jour le graphique
-        document.getElementById('apply-filters').addEventListener('click', () => {
-            const selectedType = document.getElementById('economy-type').value;
-            const selectedPeriod = document.getElementById('time-period').value;
-    
-            let newData = [];
-            let selectedYear = 2024; // Par défaut, on sélectionne l'année 2024
-    
-            // Si l'utilisateur sélectionne un type d'économie
-            if (selectedType === 'electricity') {
-                newData = economyData.electricity;
-            } else if (selectedType === 'water') {
-                newData = economyData.water;
-            } else if (selectedType === 'gas') {
-                newData = economyData.gas;
-            } else {
-                newData = [...economyData.electricity, ...economyData.water, ...economyData.gas]; // Toutes les économies
-            }
-    
-            // Filtrage en fonction de la période sélectionnée
-            if (selectedPeriod === 'year') {
-                // Filtrer pour l'année entière
-                newData = newData[selectedYear];
-                chartData.labels = months; // Afficher tous les mois
-            } else if (selectedPeriod === 'month') {
-                // Filtrer pour un mois spécifique (par exemple, janvier 2024)
-                newData = [newData[selectedYear][0]]; // Exemple : juste les économies du premier mois
-                chartData.labels = ['Jan']; // Afficher seulement janvier
-            } else {
-                // Si "Depuis la création" est sélectionné, afficher toutes les économies
-                newData = newData.flat(); // Rassembler toutes les économies des différents types
-                chartData.labels = months; // Afficher tous les mois
-            }
-    
-            // Mise à jour des données du graphique
-            economyChart.data.datasets[0].data = newData;
-            economyChart.update();
+            });
+        
+            // Afficher les sections dynamiques
+            economyTableSection.style.display = 'block';
+            economyChartSection.style.display = 'block';
+        }
+        
+        // Ajout d'écouteurs sur les boutons
+        document.querySelectorAll('.buttons button').forEach(button => {
+            button.addEventListener('click', () => {
+                const type = button.dataset.type;
+                conso_type.textContent = "pour " + type;
+                loadEconomies(type);
+            });
         });
-    </script>
-    
-
+        </script>
+        
 </body>
 </html>

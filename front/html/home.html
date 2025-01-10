@@ -34,7 +34,7 @@
     <section class="hero">
         <div class="container">
             <h2>Bienvenue dans votre logement intelligent</h2>
-            <p>Gérez votre consommation énergétique, surveillez vos capteurs, et réalisez des économies.</p>
+            <p>Suivez, optimisez et réduisez votre consommation énergétique dès aujourd'hui.</p>
         </div>
     </section>
 
@@ -42,15 +42,15 @@
     <section class="summary">
         <div class="container grid">
             <div class="card">
-                <i class="fas fa-bolt"></i>
-                <h3>Consommation Électrique</h3>
-                <p id="electricity-summary">Chargement...</p>
-            </div>
-            <div class="card">
                 <i class="fas fa-tint"></i>
                 <h3>Consommation d'Eau</h3>
                 <p id="water-summary">Chargement...</p>
             </div>
+            <div class="card">
+                <i class="fas fa-bolt"></i>
+                <h3>Consommation Électrique</h3>
+                <p id="electricity-summary">Chargement...</p>
+            </div>            
             <div class="card">
                 <i class="fas fa-leaf"></i>
                 <h3>Économies Réalisées</h3>
@@ -59,22 +59,118 @@
         </div>
     </section>
 
-    <!-- Graphique Section -->
-    <section class="charts">
+    <!-- Eco Impact Section -->
+    <section class="eco-impact">
         <div class="container">
-            <h2>Graphique de Consommation</h2>
-            <canvas id="consumptionChart"></canvas>
+            <h2>Votre Impact Écologique</h2>
+            <p>Faites partie d'une communauté dédiée à un avenir plus durable.</p>
+            <div class="impact-stats">
+                <div class="stat">
+                    <i class="fas fa-leaf"></i>
+                    <p><span class="highlight">5,432</span> kWh économisés</p>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-tint"></i>
+                    <p><span class="highlight">8,210</span> litres d'eau conservés</p>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-globe"></i>
+                    <p><span class="highlight">1,300</span> tonnes de CO₂ réduites</p>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Footer -->
+
+
+
     <footer class="footer">
-        <div class="container">
-            <p>&copy; 2024 Logement Éco-Responsable. Tous droits réservés.</p>
-        </div>
+        <p>© 2024 My Eco Pal House</p>
     </footer>
 
-    <!-- JavaScript -->
-    <script src="{{ url_for('static', filename='back/scripts.js') }}"></script>
+    <script>
+        // Fetch and display data for the summary section
+        async function updateSummary() {
+            try {
+                // Fetch the economy summary
+                const economyResponse = await fetch('/api/economies');
+                const economyData = await economyResponse.json();
+                const economiesTotales = economyData.economies_totales || 0; // Default to 0 if not available
+    
+                // Update the summary fields
+                document.getElementById('electricity-summary').textContent = '750 kWh consommés'; // Static example
+                document.getElementById('water-summary').textContent = '1,200 litres consommés'; // Static example
+                document.getElementById('savings-summary').textContent = `${economiesTotales.toFixed(2)} € économisés`;
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données:', error);
+                document.getElementById('savings-summary').textContent = 'Données indisponibles';
+            }
+        }
+    
+        // Render the consumption chart
+        function renderConsumptionChart() {
+            const ctx = document.getElementById('consumptionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Consommation (kWh)',
+                        data: [500, 450, 600, 550, 620, 580],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    }
+                }
+            });
+        }
+    
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSummary();
+            renderConsumptionChart();
+        });
+        // Fetch and display the latest consumption data
+async function fetchLatestConsumption() {
+    try {
+        const response = await fetch('/api/latest-consumption');
+        if (!response.ok) {
+            throw new Error('Failed to fetch latest consumption');
+        }
+
+        const data = await response.json();
+
+        // Update the water summary
+        const waterConsumption = data.water
+            ? `${data.water.consumption} litres consommés`
+            : 'Données indisponibles';
+        document.getElementById('water-summary').textContent = waterConsumption;
+
+        // Optionally update other summaries (e.g., electricity, gas, etc.)
+        if (data.electricity) {
+            document.getElementById('electricity-summary').textContent = `${data.electricity.consumption} kWh consommés`;
+        }
+        if (data.gas) {
+            // Update gas summary if required
+        }
+    } catch (error) {
+        console.error('Error fetching latest consumption:', error);
+        document.getElementById('water-summary').textContent = 'Erreur lors du chargement des données';
+    }
+}
+
+// Call the function when the page is loaded
+document.addEventListener('DOMContentLoaded', fetchLatestConsumption);
+
+    </script>
+    
 </body>
 </html>

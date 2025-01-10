@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuration</title>
     <link rel="stylesheet" href="../../static/css/styles.css">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -28,211 +28,185 @@
             </div>
         </div>
     </header>
-
-   <!-- Section de filtrage et recherche -->
-   <section class="filter-section">
-        <label for="statusFilter">Filtrer par statut :</label>
-        <select id="statusFilter">
-            <option value="all">Tous</option>
-            <option value="active">Actifs</option>
-            <option value="inactive">Inactifs</option>
-        </select>
-
-        <label for="typeFilter">Filtrer par type :</label>
-        <select id="typeFilter">
-            <option value="all">Tous</option>
-            <option value="temperature">Température</option>
-            <option value="humidity">Humidité</option>
-            <option value="motion">Mouvement</option>
-        </select>
+    
+    <section class="hero">
+        <h2>Configuration de votre Logement</h2>
+        <p>Gérez vos appareils connectés, paramétrez vos capteurs, et planifiez vos actions pour un contrôle optimal de votre logement.</p>
     </section>
-
-    <!-- Section pour gérer les groupes de capteurs/actionneurs -->
-    <section class="sensor-actuators">
-        <h3>Gérer les Capteurs et Actionneurs</h3>
     
-        <!-- Bouton pour ajouter un nouveau capteur/actionneur -->
-        <button id="addDeviceBtn" class="btn">Ajouter un Capteur/Actionneur</button>
-    
-        <!-- Tableau de gestion des capteurs/actionneurs -->
-        <div class="device-tables">
-            <!-- Exemple de tableau pour une chambre -->
-            <div class="room">
-                <h4>Chambre 1</h4>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Type</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Température 1</td>
-                            <td>Capteur</td>
-                            <td>Actif</td>
-                            <td>
-                                <button class="btn btn-edit">Renommer</button>
-                                <button class="btn btn-delete">Supprimer</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Chauffage</td>
-                            <td>Actionneur</td>
-                            <td>Inactif</td>
-                            <td>
-                                <button class="btn btn-edit">Renommer</button>
-                                <button class="btn btn-delete">Supprimer</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-    
-            <!-- Ajouter d'autres chambres ici -->
-            <div class="room">
-                <h4>Salon</h4>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Type</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Motion Detector</td>
-                            <td>Capteur</td>
-                            <td>Actif</td>
-                            <td>
-                                <button class="btn btn-edit">Renommer</button>
-                                <button class="btn btn-delete">Supprimer</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <!-- Section Factures -->
+    <section class="factures">
+        <h3>Factures</h3>
+        <button id="addInvoiceBtn" class="btn">Ajouter une Facture</button>
+        
+        <div id="invoiceForm" class="invoice-form">
+            <form action="{{ url_for('add_facture') }}" method="POST" id="factureForm">
+                <label for="type">Type de Facture :</label>
+                <select id="type" name="type" required>
+                    <option value="electricity">Électricité</option>
+                    <option value="water">Eau</option>
+                    <option value="gas">Gaz</option>
+                    <option value="internet">Internet</option>
+                </select>
+                <label for="date_fact">Date de Facture :</label>
+                <input type="date" id="date_fact" name="date_fact" required>
+                <label for="montant">Montant :</label>
+                <input type="number" id="montant" name="montant" step="0.01" required>
+                <label for="val_consommee">Valeur Consommée :</label>
+                <input type="number" id="val_consommee" name="val_consommee" step="0.01" required>
+                <button type="submit" class="submit">Ajouter</button>
+                <button type="button" class="cancel-btn" id="cancelInvoiceForm">Annuler</button>
+            </form>
         </div>
     </section>
-    
 
-    <!-- Historique des modifications -->
-    <section class="activity-log">
-        <h3>Historique des Modifications</h3>
-        <ul id="logList">
-            <li>Modification du capteur "Température 1" - 30/11/2024 14:35</li>
-            <li>Suppression de l'actionneur "Chauffage" - 30/11/2024 14:40</li>
-        </ul>
-    </section>
-    <!-- Paramètres avancés pour capteurs -->
-    <section class="advanced-settings">
-        <h3>Paramètres Avancés</h3>
-        <form id="advancedSettingsForm">
-            <label for="sensorThreshold">Seuil d'Alerte Température :</label>
-            <input type="number" id="sensorThreshold" placeholder="Ex : 30" required>
-
-            <label for="sensorDelay">Délai d'Activation (en secondes) :</label>
-            <input type="number" id="sensorDelay" placeholder="Ex : 10" required>
-
-            <button class="submit">Appliquer les Paramètres</button>
-        </form>
-    </section>
-
-    <!-- Gestion des alertes -->
-    <section class="alert-configuration">
-        <h3>Configurer les Alertes</h3>
-        <form id="alertConfigForm">
-            <label for="alertType">Type d'Alerte :</label>
-            <select id="alertType">
-                <option value="email">Email</option>
-                <option value="sms">SMS</option>
-                <option value="push">Notification Push</option>
-            </select>
-
-            <label for="alertThreshold">Seuil d'Alerte :</label>
-            <input type="number" id="alertThreshold" required>
-
-            <button class="submit">Configurer l'Alerte</button>
-        </form>
-    </section>
-
-    <!-- Planification des actionneurs -->
-    <section class="schedule-configuration">
-        <h3>Planification des Actionneurs</h3>
-        <form id="scheduleForm">
-            <label for="device">Sélectionnez un Appareil :</label>
-            <select id="device">
-                <option value="light1">Lumière 1</option>
-                <option value="heater1">Chauffage 1</option>
-            </select>
-
-            <label for="startTime">Heure de Début :</label>
-            <input type="time" id="startTime" required>
-
-            <label for="endTime">Heure de Fin :</label>
-            <input type="time" id="endTime" required>
-
-            <button class="submit">Planifier</button>
-        </form>
-    </section>
-
-    <!-- Exportation de la configuration -->
-    <section class="export-section">
-        <button id="exportConfigBtn">Exporter la Configuration</button>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2024 My Eco Pal House.</p>
+    <section class="rooms">
+        <h3>Pièces et leurs Capteurs/Actionneurs</h3>
+        <div id="roomsTableContainer">
+            <table id="roomsTable">
+                <thead>
+                    <tr>
+                        <th>Pièce</th>
+                        <th>Référence Pièce</th>
+                        <th>Type Capt/Act</th>
+                        <th>Référence Capt/Act</th>
+                    </tr>
+                </thead>
+                <tbody id="roomsCaptActTableBody"></tbody>
+            </table>
         </div>
-    </footer>
+            <!-- Button to open form -->
+<button id="addCaptActBtn" class="btn">Ajouter un nouveau Capt/Act</button>
 
-    <script>
-    // Configuration de Chart.js pour le tableau de bord
-    var ctx = document.getElementById('sensorChart').getContext('2d');
-    var chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'], // Exemple de labels
-            datasets: [{
-                label: 'Température',
-                data: [20, 22, 24, 23, 25], // Exemple de données
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
+<!-- Form to add new capt/act -->
+<div id="addCaptActForm" class="invoice-form" style="display: none;">
+    <form action="/add_capt_act" method="POST" id="captActForm">
+        <label for="ref_commande">Reference de la Commande:</label>
+        <input type="text" id="ref_commande" name="ref_commande" required>
+        
+        <label for="type">Type:</label>
+        <input type="text" id="type" name="type" required>
+        
+        <label for="mesure">Mesure:</label>
+        <input type="text" id="mesure" name="mesure" placeholder="Optional">
+        
+        <label for="port_com">Port COM:</label>
+        <input type="text" id="port_com" name="port_com" required>
+        
+        <label for="ref_piece">ID de la piece:</label>
+        <input type="number" id="ref_piece" name="ref_piece" required>
+        
+        <label for="etat">Etat:</label>
+        <select id="etat" name="etat">
+            <option value="on">On</option>
+            <option value="off">Off</option>
+        </select>
+        
+        <button type="submit" class="submit">Ajouter</button>
+        <button type="button" class="cancel-btn" id="cancelCaptActForm">Annuler</button>
+    </form>
+</div>
+    </section>
+
+
+<script>
+    // Open the form when the button is clicked
+    document.getElementById('addCaptActBtn').addEventListener('click', function () {
+        const formContainer = document.getElementById('addCaptActForm');
+        formContainer.style.display = 'block';
+        formContainer.style.opacity = 0;
+
+        setTimeout(function () {
+            formContainer.style.transition = 'opacity 0.5s ease';
+            formContainer.style.opacity = 1;
+        }, 10);
     });
 
-    // Modal pour la gestion des groupes
-    var modal = document.getElementById("createGroupModal");
-    var btn = document.getElementById("createGroupBtn");
-    var span = document.getElementsByClassName("close")[0];
+    // Close the form when the cancel button is clicked
+    document.getElementById('cancelCaptActForm').addEventListener('click', function () {
+        const formContainer = document.getElementById('addCaptActForm');
+        formContainer.style.transition = 'opacity 0.5s ease';
+        formContainer.style.opacity = 0;
 
-    btn.onclick = function() {
-        modal.style.display = "block";
-    }
+        setTimeout(function () {
+            formContainer.style.display = 'none';
+        }, 200);
+    });
 
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
+    // Form submission handling
+    document.getElementById('captActForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        alert('Capt/Act added successfully!');
+        this.submit();
+    });
+</script>
+    
+    <script>
+        // Factures handling
+        document.getElementById('addInvoiceBtn').addEventListener('click', function () {
+            const invoiceForm = document.getElementById('invoiceForm');
+            invoiceForm.style.display = 'block';
+            invoiceForm.style.opacity = 0;
 
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+            setTimeout(function () {
+                invoiceForm.style.transition = 'opacity 0.5s ease';
+                invoiceForm.style.opacity = 1;
+            }, 10);
+        });
+
+        document.getElementById('factureForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            alert('Facture ajoutée avec succès !');
+            this.submit();
+        });
+
+        function handleCancelForm(cancelButtonId, formId) {
+            document.getElementById(cancelButtonId).addEventListener('click', function () {
+                const form = document.getElementById(formId);
+                form.reset();
+                form.parentElement.style.transition = 'opacity 0.5s ease';
+                form.parentElement.style.opacity = 0;
+
+                setTimeout(() => {
+                    form.parentElement.style.display = 'none';
+                }, 200);
+            });
         }
-    }
+        handleCancelForm('cancelInvoiceForm', 'factureForm');
+
+        // Rooms and Captors handling
+        fetchRoomsAndCaptAct();
+
+function fetchRoomsAndCaptAct() {
+    fetch('http://127.0.0.1:5000/get_rooms_and_capt_act')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            const tableBody = document.getElementById('roomsCaptActTableBody');
+            data.forEach(room => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${room.room_name}</td>
+                    <td>${room.room_id}</td>
+                    <td>${room.capt_act_type || '-'}</td>
+                    <td>${room.capt_act_ref || '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des données :', error);
+        });
+}
     </script>
+
+    <footer class="footer">
+        <p>© 2024 My Eco Pal House</p>
+    </footer>
 </body>
 </html>

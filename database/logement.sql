@@ -2,13 +2,13 @@
 DROP TABLE IF EXISTS mesure;
 DROP TABLE IF EXISTS facture;
 DROP TABLE IF EXISTS capt_act;
-DROP TABLE IF EXISTS type_capteur_actionneur;
+-- DROP TABLE IF EXISTS type_capteur_actionneur;
 DROP TABLE IF EXISTS piece;
 DROP TABLE IF EXISTS logement;
-DROP TABLE IF EXISTS users;  -- Ajout de la commande pour supprimer la table users si elle existe
+-- DROP TABLE IF EXISTS users;  -- Ajout de la commande pour supprimer la table users si elle existe
 
 -- Table des utilisateurs
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     logement_id INTEGER,
@@ -18,7 +18,7 @@ CREATE TABLE users (
 );
 
 -- Table des logements
-CREATE TABLE logement (
+CREATE TABLE IF NOT EXISTS logement (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,  -- Ajout du champ ID comme clé primaire
     IP TEXT,
     adress TEXT,
@@ -27,7 +27,7 @@ CREATE TABLE logement (
 );
 
 -- Table des pièces d'un logement
-CREATE TABLE piece (
+CREATE TABLE IF NOT EXISTS piece (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
     location_x FLOAT,
@@ -38,14 +38,14 @@ CREATE TABLE piece (
 );
 
 -- Table des types des capteurs/actionneurs
-CREATE TABLE type_capteur_actionneur (
+CREATE TABLE IF NOT EXISTS type_capteur_actionneur (
     name TEXT PRIMARY KEY,
     unite TEXT,
     precision TEXT
 );
 
--- Table des capteurs/actionneurs dans une pièce
-CREATE TABLE capt_act (
+-- Modified Table for Sensors/Actuators
+CREATE TABLE IF NOT EXISTS capt_act (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     ref_commande TEXT,
     type TEXT,
@@ -53,9 +53,11 @@ CREATE TABLE capt_act (
     port_com TEXT,
     date_insertion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ref_piece INTEGER,
+    etat TEXT DEFAULT 'off',  -- New field for the status (on/off)
     FOREIGN KEY (ref_piece) REFERENCES piece (ID),
     FOREIGN KEY (type) REFERENCES type_capteur_actionneur (name)
 );
+
 
 -- Table des relevés des mesures des capteurs
 CREATE TABLE mesure (
@@ -79,7 +81,9 @@ CREATE TABLE facture (
 
 -- Insertion d'un logement
 INSERT INTO logement (IP, adress, num_tel) 
-VALUES ('192.168.1.1', '123 Rue de l autmec', '0123456789');
+VALUES 
+('192.168.1.1', '123 Rue de l autmec', '0123456789'),
+('169.169.6.9', '69 Rue de l autmec', '0123456789');
 
 -- Récupérer l'ID du logement récemment inséré
 SELECT last_insert_rowid();
@@ -130,8 +134,41 @@ VALUES
 ('Gaz', '2024-03-20', 89.30, 150.0, 1),           -- Facture 3
 ('Internet', '2024-04-05', 60.00, 1.0, 1);        -- Facture 4
 
--- Exemple d'insertion d'un utilisateur
--- On suppose que l'ID du logement est 1, et on crée un utilisateur avec un mot de passe haché.
-INSERT INTO users (name, logement_id, password_hash)
+-- Insertion de nouvelles pièces dans la maison avec l'ID 2
+INSERT INTO piece (name, location_x, location_y, location_z, logement_id) 
 VALUES 
-('Jean Dupont', 1, 'hashed_password_here');  -- Utilise un mot de passe haché pour plus de sécurité
+('Bureau', 20.0, 0.0, 0.0, 2),    -- Bureau dans la maison avec ID 2
+('Chambre 2', 0.0, 0.0, 20.0, 2),  -- Chambre 2 dans la maison avec ID 2
+('Salle à manger', 20.0, 0.0, 20.0, 2), -- Salle à manger dans la maison avec ID 2
+('Garage', 0.0, 0.0, 0.0, 2);    -- Garage dans la maison avec ID 2
+
+-- Insertion de nouvelles pièces dans la maison avec l'ID 3
+INSERT INTO piece (name, location_x, location_y, location_z, logement_id) 
+VALUES 
+('Bureau', 10.0, 0.0, 0.0, 3),    -- Bureau dans la maison avec ID 2
+('Chambre 2', 0.0, 20.0, 10.0, 3),  -- Chambre 2 dans la maison avec ID 2
+('Salle à manger', 5.0, -5.0, 0.0, 3), -- Salle à manger dans la maison avec ID 2
+('Garage', 20.0, 20.0, -5.0, 3);    -- Garage dans la maison avec ID 2
+
+-- Insertion de capteurs/actionneurs pour ces nouvelles pièces
+INSERT INTO capt_act (ref_commande, type, mesure, port_com, ref_piece, etat)
+VALUES 
+-- Bureau
+('CMD_TEMP_003', 'Capteur de température', 21.5, 'PORT_3', 5, 'on'),  -- Temperature sensor in Bureau (room 5)
+-- Chambre 2
+('CMD_MOTION_001', 'Capteur de mouvement', 0, 'PORT_4', 6, 'on'),    -- Motion sensor in Chambre 2 (room 6)
+-- Salle à manger
+('CMD_HUM_001', 'Capteur d humidité', 45.0, 'PORT_5', 7, 'off'),     -- Humidity sensor in Salle à manger (room 7)
+-- Garage
+('CMD_VOLET_001', 'Actionneur de volet', 1, 'PORT_6', 8, 'on');      -- Actuator for garage shutter in Garage (room 8)
+
+INSERT INTO capt_act (ref_commande, type, mesure, port_com, ref_piece, etat)
+VALUES 
+-- Bureau
+('CMD_TEMP_004', 'Capteur de température', 21.5, 'PORT_3', 9, 'off'),  -- Temperature sensor in Bureau (room 5)
+-- Chambre 2
+('CMD_MOTION_012', 'Capteur de mvt', 0, 'PORT_4', 10, 'off'),    -- Motion sensor in Chambre 2 (room 6)
+-- Salle à manger
+('CMD_HUM_101', 'Capteur d hum', 45.0, 'PORT_5', 11, 'off'),     -- Humidity sensor in Salle à manger (room 7)
+-- Garage
+('CMD_VOLET_505', 'Actionneur de lumiere', 1, 'PORT_6', 12, 'off');      -- Actuator for garage shutter in Garage (room 8)

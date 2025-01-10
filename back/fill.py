@@ -6,12 +6,26 @@ from datetime import datetime, timedelta
 url = "http://localhost:5000/factures"
 types_conso = ["water", "electricity", "gas", "internet"]
 
-# Fonction pour générer une date aléatoire à partir de la date d'aujourd'hui
-def generate_random_date(start_date):
-    days_offset = random.randint(0, 30)  # Génère une date dans le mois en cours
-    return (start_date + timedelta(days=days_offset)).strftime("%Y-%m-%d")
+# Mean consumption and price ranges for each type
+consumption_data = {
+    "water": {"mean": 54, "std_dev": 30, "price_per_unit": 4.34},
+    "electricity": {"mean": 500, "std_dev": 50, "price_per_unit": 0.2516},
+    "gas": {"mean": 300, "std_dev": 40, "price_per_unit": 1.025 },
+    "internet": {"mean": 500, "std_dev": 100, "price_per_unit": 0.1},
+}
 
-# Fonction pour envoyer une facture
+# Function to generate a date in a specific month
+def generate_date_for_month(month_offset):
+    today = datetime.now()
+    year = today.year
+    month = today.month - month_offset
+    if month <= 0:
+        month += 12
+        year -= 1
+    day = random.randint(1, 28)  # Simplified to avoid edge cases with different month lengths
+    return datetime(year, month, day).strftime("%Y-%m-%d")
+
+# Function to send a bill
 def send_facture(consommation_type, logement_id, montant, consommee, date_fact):
     payload = {
         "type": consommation_type,
@@ -20,33 +34,28 @@ def send_facture(consommation_type, logement_id, montant, consommee, date_fact):
         "val_consommee": consommee,
         "logement_id": logement_id
     }
-
     headers = {
         "Content-Type": "application/json"
     }
-
-    # Envoi de la requête POST avec les données de la facture
     response = requests.post(url, json=payload, headers=headers)
-    
-    # Vérification de la réponse
     if response.status_code == 200:
         print(f"Facture {consommation_type} envoyée avec succès!")
     else:
         print(f"Erreur lors de l'envoi de la facture {consommation_type}: {response.status_code}")
 
-# Fonction principale
+# Main function
 def generate_factures():
-    start_date = datetime.now()
-    
     for consommation_type in types_conso:
-        for i in range(10):  # Génère 10 factures pour chaque type de consommation
-            date_fact = generate_random_date(start_date)
-            montant = round(random.uniform(50.0, 150.0), 2)  # Montant aléatoire entre 50 et 150
-            consommee = round(random.uniform(30.0, 200.0), 2)  # Consommation aléatoire entre 30 et 200
-            logement_id = random.randint(1, 5)  # ID logement aléatoire entre 1 et 5
+        mean = consumption_data[consommation_type]["mean"]
+        std_dev = consumption_data[consommation_type]["std_dev"]
+        price_per_unit = consumption_data[consommation_type]["price_per_unit"]
 
-            # Envoie la facture
+        for i in range(5):  # Generate 5 invoices per type
+            date_fact = generate_date_for_month(i)
+            consommee = max(0, round(random.gauss(mean, std_dev), 2))  # Ensure no negative values
+            montant = round(consommee * price_per_unit, 2)
+            logement_id = 2  # Replace with logic for dynamic IDs if needed
             send_facture(consommation_type, logement_id, montant, consommee, date_fact)
 
-# Appel de la fonction pour générer les factures
+# Call the function to generate invoices
 generate_factures()
