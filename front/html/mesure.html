@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesures</title>
+    <link rel="stylesheet" href="../../static/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>Logement Éco-Responsable</h1>
+            <nav class="nav">
+                <a href="{{ url_for('home') }}">Accueil</a>
+                <a href="{{ url_for('consommation') }}">Consommation</a>
+                <a href="{{ url_for('capteurs') }}">Capteurs/Actionneurs</a>
+                <a href="{{ url_for('measures') }}" class="active">Mesures</a>
+                <a href="{{ url_for('economies') }}">Économies</a>
+                <a href="{{ url_for('configuration') }}">Configuration</a>
+            </nav>
+            <div class="account-menu">
+                <img src="../../static/images/account-icon2.png" alt="Compte" class="account-icon">
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('change_password') }}">Changer de mot de passe</a></li>
+                    <li><a href="{{ url_for('logout') }}">Se déconnecter</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h2>Historique des Mesures</h2>
+        <p>Visualisez les dernières mesures collectées par vos capteurs.</p>
+    </section>
+
+    <!-- Section: Table of Measures -->
+    <section class="measures">
+        <h3>Dernières Mesures</h3>
+        <div id="measuresTableContainer">
+            <table id="measuresTable">
+                <thead>
+                    <tr>
+                        <th>Capteur</th>
+                        <th>Valeur</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Section: Graph -->
+    <section class="graph">
+        <h3>Graphique des 10 Dernières Mesures</h3>
+        <canvas id="measuresGraph"></canvas>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchMeasures);
+
+        function fetchMeasures() {
+            fetch('http://127.0.0.1:5000/get_measures')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    populateTable(data);
+                    renderGraph(data);
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des données :', error);
+                });
+        }
+
+        function populateTable(data) {
+            const tableBody = document.querySelector('#measuresTable tbody');
+            tableBody.innerHTML = ''; // Clear any existing rows
+
+            data.forEach(measure => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${measure.capt_act_ref}</td>
+                    <td>${measure.value}</td>
+                    <td>${measure.date_insertion}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function renderGraph(data) {
+            const ctx = document.getElementById('measuresGraph').getContext('2d');
+            const labels = data.map(measure => measure.date_insertion);
+            const values = data.map(measure => measure.value);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Valeurs Mesurées',
+                        data: values,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Date' } },
+                        y: { title: { display: true, text: 'Valeur' } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -19,9 +19,17 @@
             <a href="{{ url_for('home') }}">Accueil</a>
             <a href="{{ url_for('consommation') }}">Consommation</a>
             <a href="{{ url_for('capteurs') }}">Capteurs/Actionneurs</a>
+            <a href="{{ url_for('measures') }}">Mesures</a>
             <a href="{{ url_for('economies') }}" class="active">Économies</a>
             <a href="{{ url_for('configuration') }}">Configuration</a>
         </nav>
+        <div class="account-menu">
+            <img src="../../static/images/account-icon2.png" alt="Compte" class="account-icon">
+            <ul class="dropdown-menu">
+                <li><a href="{{ url_for('change_password') }}">Changer de mot de passe</a></li>
+                <li><a href="{{ url_for('logout') }}">Se déconnecter</a></li>
+            </ul>
+        </div>
     </header>
 
     <div class="container">

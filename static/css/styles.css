@@ -820,9 +820,9 @@ footer.footer {
 .dropdown-menu {
     display: none; /* Masqué par défaut */
     position: absolute;
-    width: 10rem;
+    width: 15rem;
     right: 0;
-    top: 50px;
+    top: 40px;
     background-color: white;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
@@ -1883,4 +1883,92 @@ canvas {
 
 .toggle-btn:hover {
     background-color: #004d40;
+}
+
+/* Page des Mesures */
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #e0f2f1; /* Vert clair */
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hero h2 {
+    font-size: 1.8rem;
+    color: #004d40; /* Vert foncé */
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    color: #004d40;
+}
+
+/* Section des Mesures */
+.measures {
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.measures h3 {
+    font-size: 1.5rem;
+    color: #004d40;
+    margin-bottom: 15px;
+}
+
+#measuresTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#measuresTable th,
+#measuresTable td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+}
+
+#measuresTable th {
+    background-color: #00796b; /* Vert foncé */
+    color: white;
+    font-weight: bold;
+}
+
+#measuresTable tr:nth-child(even) {
+    background-color: #f9f9f9; /* Gris clair */
+}
+
+#measuresTable tr:hover {
+    background-color: #e0f2f1; /* Survol vert clair */
+}
+
+#measuresTable td {
+    color: #004d40; /* Texte vert foncé */
+}
+
+/* Section du Graphique */
+.graph {
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.graph h3 {
+    font-size: 1.5rem;
+    color: #004d40;
+    margin-bottom: 15px;
+}
+
+canvas {
+    max-width: 100%;
+    margin: 0 auto;
 }
