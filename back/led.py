@@ -7,6 +7,7 @@ import json  # Pour traiter les messages JSON
 import hashlib
 from datetime import datetime
 import requests
+import re
 import random
 
 app = Flask(__name__, template_folder="../front/html", static_folder="../static")
@@ -294,7 +295,7 @@ def logout():
 
 
 # Configuration MQTT
-MQTT_BROKER = "172.20.10.2" #"192.168.53.254" #"172.20.10.2"  #"192.168.125.254" #"192.168.11.114" # "192.168.125.254" #"192.168.137.254" #"192.168.1.16"#192.168.172.254"#"192.168.1.17" #"192.168.231.254" #"192.168.1.17" #"172.20.10.3"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
+MQTT_BROKER = "192.168.1.17" #"172.20.10.2" #"192.168.53.254" #"172.20.10.2"  #"192.168.125.254" #"192.168.11.114" # "192.168.125.254" #"192.168.137.254" #"192.168.1.16"#192.168.172.254"#"192.168.1.17" #"192.168.231.254" #"192.168.1.17" #"172.20.10.3"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
 MQTT_PORT = 1883  # Port par défaut de MQTT
 MQTT_TOPIC = "maison/capteurs/dht11"  # Topic pour recevoir les données de température et d'humidité
 LED_TOPIC = "maison/led"  # Topic pour envoyer des commandes pour allumer ou éteindre la LED
@@ -837,61 +838,93 @@ def get_rooms_and_capt_act():
         print(f"Error in /get_rooms_and_capt_act: {e}")
         return jsonify({"error": "Internal Server Error"}), 500
     
-@app.route('/get_measures', methods=['GET'])
-def measures():
-    try:
-        # Get the current user's ID from the session
-        user_id = session.get('user_id')
-        if user_id is None:
-            return jsonify({"error": "User not logged in"}), 401
 
-        # Connect to the database
+@app.route('/get_measures', methods=['GET'])
+def get_measures():
+    # Connect to the SQLite database
+    conn = connect_db()  # Ensure `connect_db()` is defined and connects correctly
+    cursor = conn.cursor()
+
+    # Query the last 10 measures for the DHT11 sensor (ID_capt_act = 3), sorted by date descending
+    query = """
+        SELECT ID_capt_act, value, date_insertion 
+        FROM mesure 
+        WHERE ID_capt_act = 3 
+        ORDER BY date_insertion DESC 
+        LIMIT 10
+    """
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    # Close the database connection
+    conn.close()
+
+    # Format the data as a list of dictionaries
+    measures = [
+        {'capt_act_ref': row[0], 'value': row[1], 'date_insertion': row[2]} 
+        for row in rows
+    ]
+
+    return jsonify(measures)  # Return JSON data
+
+@app.route('/measures', methods=['GET'])
+def measures():
+    # Render the mesure.html template for the main page
+    return render_template('mesure.html')
+
+@app.route('/api/dht11_measures', methods=['GET'])
+def api_dht11_measures():
+    try:
+        # Connect to the SQLite database
         conn = connect_db()
         cursor = conn.cursor()
 
-        # Fetch logement_id for the logged-in user
-        cursor.execute("SELECT logement_id FROM users WHERE id = ?", (user_id,))
-        result = cursor.fetchone()
-        if result is None:
-            return jsonify({"error": "No logement found"}), 404
-
-        logement_id = result[0]  # Extract logement_id
-
-        # Fetch the last 10 measures
-        cursor.execute("""
-            SELECT c.ref_commande AS capt_act_ref, m.value, m.date_insertion
-            FROM mesure m
-            JOIN capt_act c ON m.ID_capt_act = c.ID
-            JOIN piece p ON c.ref_piece = p.ID
-            WHERE p.logement_id = ?
-            ORDER BY m.date_insertion DESC
+        # Query the last 10 measures for the DHT11 sensor (ID_capt_act = 3)
+        query = """
+            SELECT ID_capt_act, value, date_insertion
+            FROM mesure 
+            WHERE ID_capt_act = 3 
+            ORDER BY date_insertion DESC 
             LIMIT 10
-        """, (logement_id,))
-        data = cursor.fetchall()
+        """
+        cursor.execute(query)
+        rows = cursor.fetchall()
 
-        # Close the connection
+        # Close the database connection
         conn.close()
 
-        # Transform fetched data into a JSON-compatible list
+        # Function to extract temperature and humidity from the value string
+        def extract_temperature_and_humidity(value_str):
+            try:
+                temp_match = re.search(r'Temp:\s*([0-9.]+)°C', value_str)
+                hum_match = re.search(r'Humid:\s*([0-9.]+)%', value_str)
+                
+                temperature = float(temp_match.group(1)) if temp_match else None
+                humidity = float(hum_match.group(1)) if hum_match else None
+                
+                return temperature, humidity
+            except Exception as e:
+                print(f"Error extracting data from value string: {e}")
+                return None, None
+
+        # Format the data as a list of dictionaries
         measures = [
             {
-                "capt_act_ref": row[0],
-                "value": row[1],
-                "date_insertion": row[2]  # Date will be converted to string in the frontend
+                'capt_act_ref': row[0],
+                'temperature': extract_temperature_and_humidity(row[1])[0],
+                'humidity': extract_temperature_and_humidity(row[1])[1],
+                'date_insertion': row[2]
             }
-            for row in data
+            for row in rows
         ]
 
-        # Return JSON data for AJAX
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify(measures)
-        
-        # Render the HTML template
-        return render_template('mesure.html')
+        # Return the data as JSON
+        return jsonify(measures)
 
     except Exception as e:
-        print(f"Error in /get_measures: {e}")
-        return jsonify({"error": "Internal Server Error"}), 500
+        # Log error for debugging
+        print(f"Error in /api/dht11_measures: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
