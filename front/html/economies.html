@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,15 +8,20 @@
     <link rel="stylesheet" href="../../static/css/styles.css">
     <style>
         /* Hide table and chart sections initially */
-        .economy-table, .charts {
+        .economy-table,
+        .charts {
             display: none;
         }
     </style>
 </head>
+
 <body>
+
+    <!-- Header with Navigation and Account Menu -->
     <header class="header">
         <h1>Suivi des Économies</h1>
         <nav class="nav">
+            <!-- Navigation Links -->
             <a href="{{ url_for('home') }}">Accueil</a>
             <a href="{{ url_for('consommation') }}">Consommation</a>
             <a href="{{ url_for('capteurs') }}">Capteurs/Actionneurs</a>
@@ -32,27 +38,28 @@
         </div>
     </header>
 
+    <!-- Main Content Section -->
     <div class="container">
         <section class="hero">
             <h2>Economies récentes</h2>
             <p>Voici un aperçu de vos économies récentes.</p>
         </section>
-        
-        <!-- Boutons pour sélectionner un type de facture -->
+
+        <!-- Buttons for Selecting the Type of Bill -->
         <div class="buttons">
             <button data-type="electricity">Électricité</button>
             <button data-type="water">Eau</button>
             <button data-type="gas">Gaz</button>
-            <button data-type="internet"> Internet </button>
+            <button data-type="internet">Internet</button>
         </div>
-        
-        <!-- Graphique des économies -->
+
+        <!-- Section for the Economy Chart -->
         <section class="charts">
             <h3>Graphique des économies</h3>
             <canvas id="economyChart"></canvas>
         </section>
 
-        <!-- Tableau des économies -->
+        <!-- Section for the Economy Table -->
         <section class="economy-table">
             <h3>Économies réalisées <span id="conso_type"></span></h3>
             <table id="economy-table">
@@ -65,13 +72,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Les données seront insérées dynamiquement -->
+                    <!-- Data will be inserted dynamically -->
                 </tbody>
             </table>
         </section>
 
-
-
+        <!-- Tips for Saving More -->
         <section class="economy-tips">
             <h3>Conseils pour économiser encore plus</h3>
             <ul>
@@ -81,111 +87,121 @@
             </ul>
         </section>
 
+        <!-- Footer Section -->
         <footer class="footer">
             <p>© 2024 My Eco Pal House.</p>
         </footer>
     </div>
 
+    <!-- External Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Cache DOM elements for easy access
         const tableBody = document.querySelector('#economy-table tbody');
         const economyChartCtx = document.getElementById('economyChart').getContext('2d');
         const conso_type = document.getElementById("conso_type");
         const economyTableSection = document.querySelector('.economy-table');
         const economyChartSection = document.querySelector('.charts');
         let economyChart;
-        
-        // Fonction pour charger les données et mettre à jour la page
+
+        /**
+         * Fetch and display economy data for the selected type
+         * @param {string} type - The type of consumption (electricity, water, etc.)
+         */
         async function loadEconomies(type) {
-            const response = await fetch(`/api/economies?type=${type}`);
-            const data = await response.json();
-        
-            // Récupérer les économies mensuelles et totales
-            const economiesMensuelles = data.economies_mensuelles;
-            const economiesTotales = data.economies_totales;
-        
-            // Afficher les économies totales (par exemple dans une étiquette)
-            document.querySelector('.hero p').textContent = 
-                `Vous avez économisé un total de € ${economiesTotales.toFixed(2)} pour ${type}.`;
-        
-            // Mise à jour du tableau
-            tableBody.innerHTML = '';
-            economiesMensuelles.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.mois}</td>
-                    <td>${row.consommation_actuelle.toFixed(2)}</td>
-                    <td>${row.consommation_moyenne.toFixed(2)}</td>
-                    <td>${row.economie.toFixed(2)}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        
-            // Préparer les données pour le graphique
-            const labels = economiesMensuelles.map(row => row.mois);
-            const currentValues = economiesMensuelles.map(row => row.consommation_actuelle);
-            const averageValues = economiesMensuelles.map(row => row.consommation_moyenne);
-        
-            const actualColors = currentValues.map((value, index) => 
-                value < averageValues[index] ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)'
-            );
-            const actualBorderColors = currentValues.map((value, index) => 
-                value < averageValues[index] ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)'
-            );
-        
-            // Détruire l'ancien graphe s'il existe
-            if (economyChart) economyChart.destroy();
-        
-            // Créer le nouveau graphique
-            economyChart = new Chart(economyChartCtx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: `Consommation Actuelle (${type})`,
-                            data: currentValues,
-                            backgroundColor: actualColors,
-                            borderColor: actualBorderColors,
-                            borderWidth: 1
-                        },
-                        {
-                            label: `Consommation Moyenne (${type})`,
-                            data: averageValues,
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: { beginAtZero: true },
-                        y: { beginAtZero: true }
+            try {
+                // Fetch economy data from the API
+                const response = await fetch(`/api/economies?type=${type}`);
+                const data = await response.json();
+
+                // Extract monthly and total savings data
+                const economiesMensuelles = data.economies_mensuelles;
+                const economiesTotales = data.economies_totales;
+
+                // Display total savings in the hero section
+                document.querySelector('.hero p').textContent =
+                    `Vous avez économisé un total de € ${economiesTotales.toFixed(2)} pour ${type}.`;
+
+                // Update the economy table with monthly savings
+                tableBody.innerHTML = '';
+                economiesMensuelles.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${row.mois}</td>
+                        <td>${row.consommation_actuelle.toFixed(2)}</td>
+                        <td>${row.consommation_moyenne.toFixed(2)}</td>
+                        <td>${row.economie.toFixed(2)}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+
+                // Prepare the data for the economy chart
+                const labels = economiesMensuelles.map(row => row.mois);
+                const currentValues = economiesMensuelles.map(row => row.consommation_actuelle);
+                const averageValues = economiesMensuelles.map(row => row.consommation_moyenne);
+
+                // Assign colors based on whether current consumption is less than average
+                const actualColors = currentValues.map((value, index) =>
+                    value < averageValues[index] ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)'
+                );
+                const actualBorderColors = currentValues.map((value, index) =>
+                    value < averageValues[index] ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)'
+                );
+
+                // Destroy the previous chart instance if it exists
+                if (economyChart) economyChart.destroy();
+
+                // Create the new chart
+                economyChart = new Chart(economyChartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                                label: `Consommation Actuelle (${type})`,
+                                data: currentValues,
+                                backgroundColor: actualColors,
+                                borderColor: actualBorderColors,
+                                borderWidth: 1
+                            },
+                            {
+                                label: `Consommation Moyenne (${type})`,
+                                data: averageValues,
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }
+                        ]
                     },
-                    plugins: {
-                        legend: {
-                            position: 'top',
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { beginAtZero: true },
+                            y: { beginAtZero: true }
+                        },
+                        plugins: {
+                            legend: { position: 'top' }
                         }
                     }
-                }
-            });
-        
-            // Afficher les sections dynamiques
-            economyTableSection.style.display = 'block';
-            economyChartSection.style.display = 'block';
+                });
+
+                // Show the dynamically updated sections (table and chart)
+                economyTableSection.style.display = 'block';
+                economyChartSection.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading economy data:', error);
+            }
         }
-        
-        // Ajout d'écouteurs sur les boutons
+
+        // Add event listeners to the buttons for each type of consumption
         document.querySelectorAll('.buttons button').forEach(button => {
             button.addEventListener('click', () => {
                 const type = button.dataset.type;
-                conso_type.textContent = "pour " + type;
-                loadEconomies(type);
+                conso_type.textContent = "pour " + type; // Update the header with the selected type
+                loadEconomies(type); // Load the relevant economy data
             });
         });
-        </script>
-        
+    </script>
+
 </body>
+
 </html>

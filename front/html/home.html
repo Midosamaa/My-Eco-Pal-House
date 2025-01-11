@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil - Logement Éco-Responsable</title>
-    <link rel="stylesheet" href="../../static/css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Link to external CSS and JS libraries -->
+    <link rel="stylesheet" href="../../static/css/styles.css"> <!-- Custom styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- FontAwesome for icons -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for creating charts -->
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header Section -->
     <header class="header">
         <div class="container">
             <h1>Logement Éco-Responsable</h1>
             <nav class="nav">
+                <!-- Navigation menu with links to various pages -->
                 <a href="{{ url_for('home') }}" class="active">Accueil</a>
                 <a href="{{ url_for('consommation') }}">Consommation</a>
                 <a href="{{ url_for('capteurs') }}">Capteurs/Actionneurs</a>
@@ -22,6 +25,7 @@
                 <a href="{{ url_for('configuration') }}">Configuration</a>
             </nav>
             <div class="account-menu">
+                <!-- Account menu with options to change password or log out -->
                 <img src="../../static/images/account-icon2.png" alt="Compte" class="account-icon">
                 <ul class="dropdown-menu">
                     <li><a href="{{ url_for('change_password') }}">Changer de mot de passe</a></li>
@@ -31,7 +35,7 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
+    <!-- Hero Section (Welcome message) -->
     <section class="hero">
         <div class="container">
             <h2>Bienvenue dans votre logement intelligent</h2>
@@ -39,139 +43,136 @@
         </div>
     </section>
 
-    <!-- Résumé Section -->
+    <!-- Summary Section (Displays key data like water, electricity consumption, and savings) -->
     <section class="summary">
         <div class="container grid">
             <div class="card">
-                <i class="fas fa-tint"></i>
+                <i class="fas fa-tint"></i> <!-- Water icon -->
                 <h3>Consommation d'Eau</h3>
-                <p id="water-summary">Chargement...</p>
+                <p id="water-summary">Chargement...</p> <!-- Water consumption summary -->
             </div>
             <div class="card">
-                <i class="fas fa-bolt"></i>
+                <i class="fas fa-bolt"></i> <!-- Electricity icon -->
                 <h3>Consommation Électrique</h3>
-                <p id="electricity-summary">Chargement...</p>
+                <p id="electricity-summary">Chargement...</p> <!-- Electricity consumption summary -->
             </div>            
             <div class="card">
-                <i class="fas fa-leaf"></i>
+                <i class="fas fa-leaf"></i> <!-- Savings icon -->
                 <h3>Économies Réalisées</h3>
-                <p id="savings-summary">Chargement...</p>
+                <p id="savings-summary">Chargement...</p> <!-- Savings summary -->
             </div>
         </div>
     </section>
 
-    <!-- Eco Impact Section -->
+    <!-- Eco Impact Section (Displays environmental impact stats) -->
     <section class="eco-impact">
         <div class="container">
             <h2>Votre Impact Écologique</h2>
             <p>Faites partie d'une communauté dédiée à un avenir plus durable.</p>
             <div class="impact-stats">
                 <div class="stat">
-                    <i class="fas fa-leaf"></i>
+                    <i class="fas fa-leaf"></i> <!-- Green leaf icon -->
                     <p><span class="highlight">5,432</span> kWh économisés</p>
                 </div>
                 <div class="stat">
-                    <i class="fas fa-tint"></i>
+                    <i class="fas fa-tint"></i> <!-- Water icon -->
                     <p><span class="highlight">8,210</span> litres d'eau conservés</p>
                 </div>
                 <div class="stat">
-                    <i class="fas fa-globe"></i>
+                    <i class="fas fa-globe"></i> <!-- Globe icon -->
                     <p><span class="highlight">1,300</span> tonnes de CO₂ réduites</p>
                 </div>
             </div>
         </div>
     </section>
 
-
-
-
+    <!-- Footer Section -->
     <footer class="footer">
         <p>© 2024 My Eco Pal House</p>
     </footer>
 
     <script>
-        // Fetch and display data for the summary section
+        // Function to update summary (water, electricity, and savings data)
         async function updateSummary() {
             try {
-                // Fetch the economy summary
+                // Fetch the economy summary from the API
                 const economyResponse = await fetch('/api/economies');
                 const economyData = await economyResponse.json();
                 const economiesTotales = economyData.economies_totales || 0; // Default to 0 if not available
-    
-                // Update the summary fields
-                document.getElementById('electricity-summary').textContent = '750 kWh consommés'; // Static example
-                document.getElementById('water-summary').textContent = '1,200 litres consommés'; // Static example
+
+                // Update the summary fields with the fetched data
+                document.getElementById('electricity-summary').textContent = '750 kWh consommés'; // Example, can be updated dynamically
+                document.getElementById('water-summary').textContent = '1,200 litres consommés'; // Example, can be updated dynamically
                 document.getElementById('savings-summary').textContent = `${economiesTotales.toFixed(2)} € économisés`;
             } catch (error) {
                 console.error('Erreur lors de la récupération des données:', error);
-                document.getElementById('savings-summary').textContent = 'Données indisponibles';
+                document.getElementById('savings-summary').textContent = 'Données indisponibles'; // Fallback on error
             }
         }
     
-        // Render the consumption chart
+        // Function to render consumption chart using Chart.js
         function renderConsumptionChart() {
-            const ctx = document.getElementById('consumptionChart').getContext('2d');
+            const ctx = document.getElementById('consumptionChart').getContext('2d'); // Get the context of the canvas element
             new Chart(ctx, {
-                type: 'line',
+                type: 'line', // Line chart for displaying data over time
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], // Labels for months
                     datasets: [{
-                        label: 'Consommation (kWh)',
-                        data: [500, 450, 600, 550, 620, 580],
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        label: 'Consommation (kWh)', // Label for the data
+                        data: [500, 450, 600, 550, 620, 580], // Example data (replace with real data)
+                        borderColor: 'rgba(75, 192, 192, 1)', // Line color
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Fill color below the line
                         fill: true
                     }]
                 },
                 options: {
-                    responsive: true,
+                    responsive: true, // Make chart responsive
                     plugins: {
                         legend: {
-                            position: 'top',
+                            position: 'top', // Position the legend at the top
                         },
                     }
                 }
             });
         }
     
-        // Initialize the page
+        // Initialize the page by fetching data and rendering chart
         document.addEventListener('DOMContentLoaded', () => {
-            updateSummary();
-            renderConsumptionChart();
+            updateSummary(); // Fetch and display the summary data
+            renderConsumptionChart(); // Render the consumption chart
         });
-        // Fetch and display the latest consumption data
-async function fetchLatestConsumption() {
-    try {
-        const response = await fetch('/api/latest-consumption');
-        if (!response.ok) {
-            throw new Error('Failed to fetch latest consumption');
+
+        // Function to fetch the latest consumption data (e.g., water, electricity)
+        async function fetchLatestConsumption() {
+            try {
+                const response = await fetch('/api/latest-consumption'); // Fetch latest consumption data from API
+                if (!response.ok) {
+                    throw new Error('Failed to fetch latest consumption');
+                }
+
+                const data = await response.json();
+
+                // Update water consumption summary with the fetched data
+                const waterConsumption = data.water
+                    ? `${data.water.consumption} litres consommés`
+                    : 'Données indisponibles'; // Handle missing data
+                document.getElementById('water-summary').textContent = waterConsumption;
+
+                // Optionally update other summaries (e.g., electricity, gas)
+                if (data.electricity) {
+                    document.getElementById('electricity-summary').textContent = `${data.electricity.consumption} kWh consommés`;
+                }
+                if (data.gas) {
+                    // Update gas summary if required
+                }
+            } catch (error) {
+                console.error('Error fetching latest consumption:', error);
+                document.getElementById('water-summary').textContent = 'Erreur lors du chargement des données'; // Fallback on error
+            }
         }
 
-        const data = await response.json();
-
-        // Update the water summary
-        const waterConsumption = data.water
-            ? `${data.water.consumption} litres consommés`
-            : 'Données indisponibles';
-        document.getElementById('water-summary').textContent = waterConsumption;
-
-        // Optionally update other summaries (e.g., electricity, gas, etc.)
-        if (data.electricity) {
-            document.getElementById('electricity-summary').textContent = `${data.electricity.consumption} kWh consommés`;
-        }
-        if (data.gas) {
-            // Update gas summary if required
-        }
-    } catch (error) {
-        console.error('Error fetching latest consumption:', error);
-        document.getElementById('water-summary').textContent = 'Erreur lors du chargement des données';
-    }
-}
-
-// Call the function when the page is loaded
-document.addEventListener('DOMContentLoaded', fetchLatestConsumption);
-
+        // Fetch the latest consumption data when the page is loaded
+        document.addEventListener('DOMContentLoaded', fetchLatestConsumption);
     </script>
-    
 </body>
 </html>

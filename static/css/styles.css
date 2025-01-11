@@ -1972,3 +1972,24 @@ canvas {
     max-width: 100%;
     margin: 0 auto;
 }
+
+.measures {
+    margin-top: 2rem;
+}
+.measures table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+.measures th, .measures td {
+    padding: 1rem;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+.measures th {
+    background-color: #00796b;
+    color: #fff;
+}
+.measures tr:nth-child(even) {
+    background-color: #f4f4f9;
+}

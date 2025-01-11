@@ -40,7 +40,7 @@
         <h3>Factures</h3>
         <button id="addInvoiceBtn" class="btn">Ajouter une Facture</button>
         
-        <div id="invoiceForm" class="invoice-form">
+        <div id="invoiceForm" class="invoice-form" style="display: none;">
             <form action="{{ url_for('add_facture') }}" method="POST" id="factureForm">
                 <label for="type">Type de Facture :</label>
                 <select id="type" name="type" required>
@@ -76,134 +76,107 @@
                 <tbody id="roomsCaptActTableBody"></tbody>
             </table>
         </div>
-            <!-- Button to open form -->
-<button id="addCaptActBtn" class="btn">Ajouter un nouveau Capt/Act</button>
+        
+        <!-- Button to open form -->
+        <button id="addCaptActBtn" class="btn">Ajouter un nouveau Capt/Act</button>
 
-<!-- Form to add new capt/act -->
-<div id="addCaptActForm" class="invoice-form" style="display: none;">
-    <form action="/add_capt_act" method="POST" id="captActForm">
-        <label for="ref_commande">Reference de la Commande:</label>
-        <input type="text" id="ref_commande" name="ref_commande" required>
-        
-        <label for="type">Type:</label>
-        <input type="text" id="type" name="type" required>
-        
-        <label for="mesure">Mesure:</label>
-        <input type="text" id="mesure" name="mesure" placeholder="Optional">
-        
-        <label for="port_com">Port COM:</label>
-        <input type="text" id="port_com" name="port_com" required>
-        
-        <label for="ref_piece">ID de la piece:</label>
-        <input type="number" id="ref_piece" name="ref_piece" required>
-        
-        <label for="etat">Etat:</label>
-        <select id="etat" name="etat">
-            <option value="on">On</option>
-            <option value="off">Off</option>
-        </select>
-        
-        <button type="submit" class="submit">Ajouter</button>
-        <button type="button" class="cancel-btn" id="cancelCaptActForm">Annuler</button>
-    </form>
-</div>
+        <!-- Form to add new capt/act -->
+        <div id="addCaptActForm" class="invoice-form" style="display: none;">
+            <form action="/add_capt_act" method="POST" id="captActForm">
+                <label for="ref_commande">Référence de la Commande:</label>
+                <input type="text" id="ref_commande" name="ref_commande" required>
+                
+                <label for="type">Type:</label>
+                <input type="text" id="type" name="type" required>
+                
+                <label for="mesure">Mesure:</label>
+                <input type="text" id="mesure" name="mesure" placeholder="Optionnel">
+                
+                <label for="port_com">Port COM:</label>
+                <input type="text" id="port_com" name="port_com" required>
+                
+                <label for="ref_piece">ID de la pièce:</label>
+                <input type="number" id="ref_piece" name="ref_piece" required>
+                
+                <label for="etat">État:</label>
+                <select id="etat" name="etat">
+                    <option value="on">On</option>
+                    <option value="off">Off</option>
+                </select>
+                
+                <button type="submit" class="submit">Ajouter</button>
+                <button type="button" class="cancel-btn" id="cancelCaptActForm">Annuler</button>
+            </form>
+        </div>
     </section>
 
-
-<script>
-    // Open the form when the button is clicked
-    document.getElementById('addCaptActBtn').addEventListener('click', function () {
-        const formContainer = document.getElementById('addCaptActForm');
-        formContainer.style.display = 'block';
-        formContainer.style.opacity = 0;
-
-        setTimeout(function () {
-            formContainer.style.transition = 'opacity 0.5s ease';
-            formContainer.style.opacity = 1;
-        }, 10);
-    });
-
-    // Close the form when the cancel button is clicked
-    document.getElementById('cancelCaptActForm').addEventListener('click', function () {
-        const formContainer = document.getElementById('addCaptActForm');
-        formContainer.style.transition = 'opacity 0.5s ease';
-        formContainer.style.opacity = 0;
-
-        setTimeout(function () {
-            formContainer.style.display = 'none';
-        }, 200);
-    });
-
-    // Form submission handling
-    document.getElementById('captActForm').addEventListener('submit', function (event) {
-        event.preventDefault();
-        alert('Capt/Act added successfully!');
-        this.submit();
-    });
-</script>
-    
     <script>
-        // Factures handling
+        // Toggle Invoice Form visibility
         document.getElementById('addInvoiceBtn').addEventListener('click', function () {
             const invoiceForm = document.getElementById('invoiceForm');
-            invoiceForm.style.display = 'block';
-            invoiceForm.style.opacity = 0;
-
-            setTimeout(function () {
-                invoiceForm.style.transition = 'opacity 0.5s ease';
-                invoiceForm.style.opacity = 1;
-            }, 10);
+            invoiceForm.style.display = invoiceForm.style.display === 'none' ? 'block' : 'none';
         });
 
+        // Toggle Capt/Act Form visibility
+        document.getElementById('addCaptActBtn').addEventListener('click', function () {
+            const formContainer = document.getElementById('addCaptActForm');
+            formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Close the forms on cancel
+        document.getElementById('cancelCaptActForm').addEventListener('click', function () {
+            const formContainer = document.getElementById('addCaptActForm');
+            formContainer.style.display = 'none';
+        });
+
+        document.getElementById('cancelInvoiceForm').addEventListener('click', function () {
+            const invoiceForm = document.getElementById('invoiceForm');
+            invoiceForm.style.display = 'none';
+        });
+
+        // Submit Handling for Capt/Act Form
+        document.getElementById('captActForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            alert('Capteur/Actionneur ajouté avec succès!');
+            this.submit();
+        });
+
+        // Submit Handling for Invoice Form
         document.getElementById('factureForm').addEventListener('submit', function (event) {
             event.preventDefault();
             alert('Facture ajoutée avec succès !');
             this.submit();
         });
 
-        function handleCancelForm(cancelButtonId, formId) {
-            document.getElementById(cancelButtonId).addEventListener('click', function () {
-                const form = document.getElementById(formId);
-                form.reset();
-                form.parentElement.style.transition = 'opacity 0.5s ease';
-                form.parentElement.style.opacity = 0;
-
-                setTimeout(() => {
-                    form.parentElement.style.display = 'none';
-                }, 200);
-            });
+        // Fetch Rooms and Captors from API
+        function fetchRoomsAndCaptAct() {
+            fetch('http://127.0.0.1:5000/get_rooms_and_capt_act')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const tableBody = document.getElementById('roomsCaptActTableBody');
+                    data.forEach(room => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${room.room_name}</td>
+                            <td>${room.room_id}</td>
+                            <td>${room.capt_act_type || '-'}</td>
+                            <td>${room.capt_act_ref || '-'}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des données :', error);
+                });
         }
-        handleCancelForm('cancelInvoiceForm', 'factureForm');
 
-        // Rooms and Captors handling
+        // Call the function to fetch and display room data
         fetchRoomsAndCaptAct();
-
-function fetchRoomsAndCaptAct() {
-    fetch('http://127.0.0.1:5000/get_rooms_and_capt_act')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log(data);
-            const tableBody = document.getElementById('roomsCaptActTableBody');
-            data.forEach(room => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${room.room_name}</td>
-                    <td>${room.room_id}</td>
-                    <td>${room.capt_act_type || '-'}</td>
-                    <td>${room.capt_act_ref || '-'}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        })
-        .catch(error => {
-            console.error('Erreur lors du chargement des données :', error);
-        });
-}
     </script>
 
     <footer class="footer">

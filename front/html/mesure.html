@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mesures</title>
     <link rel="stylesheet" href="../../static/css/styles.css">
+    <!-- Include the Chart.js library for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
-    <!-- Header -->
+
+    <!-- Header Section with Navigation -->
     <header class="header">
         <div class="container">
             <h1>Logement Éco-Responsable</h1>
             <nav class="nav">
+                <!-- Navigation links -->
                 <a href="{{ url_for('home') }}">Accueil</a>
                 <a href="{{ url_for('consommation') }}">Consommation</a>
                 <a href="{{ url_for('capteurs') }}">Capteurs/Actionneurs</a>
@@ -30,15 +35,17 @@
         </div>
     </header>
 
+    <!-- Hero Section with Heading -->
     <section class="hero">
         <h2>Historique des Mesures</h2>
         <p>Visualisez les dernières mesures collectées par vos capteurs.</p>
     </section>
 
-    <!-- Section: Table of Measures -->
+    <!-- Section to Display Table of Measures -->
     <section class="measures">
         <h3>Dernières Mesures</h3>
         <div id="measuresTableContainer">
+            <!-- Table for displaying sensor data -->
             <table id="measuresTable">
                 <thead>
                     <tr>
@@ -53,159 +60,173 @@
         </div>
     </section>
 
-    <!-- Section: Graphs -->
-    <section class="graphs">
+    <!-- Section to Display Graphs -->
+    <section class="graphs charts">
         <h3>Graphiques des Dernières Mesures</h3>
         <div>
-            <canvas id="temperatureChartCanvas"></canvas> <!-- Temperature graph -->
+            <canvas id="temperatureChartCanvas"></canvas> <!-- Temperature Graph -->
         </div>
         <div>
-            <canvas id="humidityChartCanvas"></canvas> <!-- Humidity graph -->
+            <canvas id="humidityChartCanvas"></canvas> <!-- Humidity Graph -->
         </div>
     </section>
 
     <script>
-let measuresData = []; // Declare measuresData globally
-let temperatureChartInstance = null; // Store the temperature chart instance
-let humidityChartInstance = null; // Store the humidity chart instance
-const tableBody = document.querySelector('#measuresTable tbody'); // Initialize tableBody
+        // Declare necessary variables for storing data and chart instances
+        let measuresData = []; // Holds the fetched measure data
+        let temperatureChartInstance = null; // Store instance of temperature chart
+        let humidityChartInstance = null; // Store instance of humidity chart
+        const tableBody = document.querySelector('#measuresTable tbody'); // Table body reference
 
-// Initialize the canvas elements for the graphs
-const temperatureChartCanvas = document.getElementById('temperatureChartCanvas');
-const humidityChartCanvas = document.getElementById('humidityChartCanvas');
+        // Get canvas elements for the charts
+        const temperatureChartCanvas = document.getElementById('temperatureChartCanvas');
+        const humidityChartCanvas = document.getElementById('humidityChartCanvas');
 
-// Flag to track the first load of the graphs
-let isFirstLoad = true;
+        // Flag to check if this is the first time loading the graphs
+        let isFirstLoad = true;
 
-// Function to load the last 10 DHT11 measures
-async function loadDHT11Measures() {
-    try {
-        const response = await fetch('/api/dht11_measures');
-        if (!response.ok) {
-            throw new Error(`Error fetching measures: ${response.statusText}`);
-        }
-        const data = await response.json();
-
-        // Check if the data is different to avoid redundant table updates
-        if (JSON.stringify(data) !== JSON.stringify(measuresData)) {
-            measuresData = data;
-            updateTable();
-            updateGraphs(); // Update both table and graphs
-        }
-    } catch (error) {
-        console.error('Error loading DHT11 measures:', error);
-    }
-}
-
-// Function to update the table with the fetched measures
-function updateTable() {
-    tableBody.innerHTML = ''; // Clear the table body before populating
-    measuresData.forEach(measure => {
-        const tr = document.createElement('tr');
-
-        // Ensure temperature and humidity are valid numbers
-        const temperature = isNaN(parseFloat(measure.temperature)) ? 'Non disponible' : parseFloat(measure.temperature).toFixed(2);
-        const humidity = isNaN(parseFloat(measure.humidity)) ? 'Non disponible' : parseFloat(measure.humidity).toFixed(2);
-
-        tr.innerHTML = `
-            <td>${measure.capt_act_ref}</td>
-            <td>${temperature}</td>
-            <td>${humidity}</td>
-            <td>${measure.date_insertion}</td>
-        `;
-        tableBody.appendChild(tr);
-    });
-}
-
-// Function to update the graphs
-function updateGraphs() {
-    const labels = measuresData.map(measure => measure.date_insertion); // Dates for X-axis
-    const temperatures = measuresData.map(measure => measure.temperature); // Temperature values
-    const humidities = measuresData.map(measure => measure.humidity); // Humidity values
-
-    // Destroy the existing temperature chart if it exists
-    if (temperatureChartInstance) {
-        temperatureChartInstance.destroy();
-    }
-
-    // Create the new temperature chart
-    temperatureChartInstance = new Chart(temperatureChartCanvas, {
-        type: 'line', // Line chart
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Température (°C)',
-                data: temperatures,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                fill: true,
-                tension: 0.1
-            }]
-        },
-        options: {
-            animation: isFirstLoad ? { // Enable animation only on the first load
-                duration: 1000, // Animation duration (in ms)
-                easing: 'easeOutBounce'
-            } : false, // Disable animation after the first load
-            scales: {
-                x: {
-                    reverse: true, // Reverse the time axis (right to left)
-                    ticks: {
-                        maxRotation: 90,
-                        minRotation: 45
-                    }
+        /**
+         * Fetch the latest DHT11 sensor data
+         * Updates the table and graphs with new data
+         */
+        async function loadDHT11Measures() {
+            try {
+                const response = await fetch('/api/dht11_measures'); // Fetch sensor data from the backend
+                if (!response.ok) {
+                    throw new Error(`Error fetching measures: ${response.statusText}`);
                 }
+                const data = await response.json(); // Parse the JSON response
+
+                // Only update the table and graphs if new data is fetched
+                if (JSON.stringify(data) !== JSON.stringify(measuresData)) {
+                    measuresData = data; // Store the new data
+                    updateTable(); // Update the data table
+                    updateGraphs(); // Update the graphs with new data
+                }
+            } catch (error) {
+                console.error('Error loading DHT11 measures:', error);
             }
         }
-    });
 
-    // Destroy the existing humidity chart if it exists
-    if (humidityChartInstance) {
-        humidityChartInstance.destroy();
-    }
+        /**
+         * Update the HTML table with the fetched measures data
+         */
+        function updateTable() {
+            tableBody.innerHTML = ''; // Clear any previous rows in the table
 
-    // Create the new humidity chart
-    humidityChartInstance = new Chart(humidityChartCanvas, {
-        type: 'line', // Line chart
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Humidité (%)',
-                data: humidities,
-                borderColor: 'rgba(54, 162, 235, 1)',
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                fill: true,
-                tension: 0.1
-            }]
-        },
-        options: {
-            animation: isFirstLoad ? { // Enable animation only on the first load
-                duration: 1000, // Animation duration (in ms)
-                easing: 'easeOutBounce'
-            } : false, // Disable animation after the first load
-            scales: {
-                x: {
-                    reverse: true, // Reverse the time axis (right to left)
-                    ticks: {
-                        maxRotation: 90,
-                        minRotation: 45
+            // Loop through the measuresData array and create table rows for each measure
+            measuresData.forEach(measure => {
+                const tr = document.createElement('tr'); // Create a new table row
+
+                // Ensure temperature and humidity are valid numbers, or show 'Non disponible' if invalid
+                const temperature = isNaN(parseFloat(measure.temperature)) ? 'Non disponible' : parseFloat(measure.temperature).toFixed(2);
+                const humidity = isNaN(parseFloat(measure.humidity)) ? 'Non disponible' : parseFloat(measure.humidity).toFixed(2);
+
+                // Insert the measure data into the table row
+                tr.innerHTML = `
+                    <td>${measure.capt_act_ref}</td>
+                    <td>${temperature}</td>
+                    <td>${humidity}</td>
+                    <td>${measure.date_insertion}</td>
+                `;
+                tableBody.appendChild(tr); // Append the row to the table body
+            });
+        }
+
+        /**
+         * Update the line graphs for temperature and humidity
+         */
+        function updateGraphs() {
+            // Extract labels (dates) and data (temperatures and humidities) for the charts
+            const labels = measuresData.map(measure => measure.date_insertion); // Date labels for the X-axis
+            const temperatures = measuresData.map(measure => measure.temperature); // Temperature values for Y-axis
+            const humidities = measuresData.map(measure => measure.humidity); // Humidity values for Y-axis
+
+            // Destroy existing temperature chart instance if it exists
+            if (temperatureChartInstance) {
+                temperatureChartInstance.destroy();
+            }
+
+            // Create a new temperature chart using Chart.js
+            temperatureChartInstance = new Chart(temperatureChartCanvas, {
+                type: 'line', // Set chart type to line
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Température (°C)',
+                        data: temperatures,
+                        borderColor: 'rgba(255, 99, 132, 1)', // Line color
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Background color
+                        fill: true, // Fill the area under the line
+                        tension: 0.1 // Smoothness of the line
+                    }]
+                },
+                options: {
+                    animation: isFirstLoad ? { // Animate only on the first load
+                        duration: 1000, // 1 second animation
+                        easing: 'easeOutBounce' // Bounce easing
+                    } : false,
+                    scales: {
+                        x: {
+                            reverse: true, // Reverse the X-axis (right to left)
+                            ticks: {
+                                maxRotation: 90, // Maximum rotation for X-axis labels
+                                minRotation: 45 // Minimum rotation for X-axis labels
+                            }
+                        }
                     }
                 }
+            });
+
+            // Destroy existing humidity chart instance if it exists
+            if (humidityChartInstance) {
+                humidityChartInstance.destroy();
+            }
+
+            // Create a new humidity chart using Chart.js
+            humidityChartInstance = new Chart(humidityChartCanvas, {
+                type: 'line', // Set chart type to line
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Humidité (%)',
+                        data: humidities,
+                        borderColor: 'rgba(54, 162, 235, 1)', // Line color
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)', // Background color
+                        fill: true, // Fill the area under the line
+                        tension: 0.1 // Smoothness of the line
+                    }]
+                },
+                options: {
+                    animation: isFirstLoad ? { // Animate only on the first load
+                        duration: 1000, // 1 second animation
+                        easing: 'easeOutBounce' // Bounce easing
+                    } : false,
+                    scales: {
+                        x: {
+                            reverse: true, // Reverse the X-axis (right to left)
+                            ticks: {
+                                maxRotation: 90, // Maximum rotation for X-axis labels
+                                minRotation: 45 // Minimum rotation for X-axis labels
+                            }
+                        }
+                    }
+                }
+            });
+
+            // After the first load, set the flag to false to disable animation in future updates
+            if (isFirstLoad) {
+                isFirstLoad = false;
             }
         }
-    });
 
-    // After the first load, set the flag to false
-    if (isFirstLoad) {
-        isFirstLoad = false;
-    }
-}
-
-// Initialize the loading of DHT11 measures when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    loadDHT11Measures(); // Load on page load
-    setInterval(loadDHT11Measures, 2000); // Poll every 2 seconds
-});
+        // Initialize the loading of DHT11 measures when the page is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDHT11Measures(); // Load data immediately when page is ready
+            setInterval(loadDHT11Measures, 2000); // Poll for new data every 2 seconds
+        });
     </script>
+
 </body>
+
 </html>

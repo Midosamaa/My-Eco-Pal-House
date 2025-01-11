@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,20 +8,23 @@
     <link rel="stylesheet" href="../../static/css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
-    <!-- Header -->
+    <!-- Header Section -->
     <header class="header">
         <h1>Suivi des Consommations</h1>
         <nav class="nav">
+            <!-- Navigation Links -->
             <a href="{{ url_for('home') }}">Accueil</a>
             <a href="{{ url_for('consommation') }}" class="active">Consommation</a>
             <a href="{{ url_for('capteurs') }}">Capteurs/Actionneurs</a>
-            <a href="{{ url_for('measures') }}" >Mesures</a>
+            <a href="{{ url_for('measures') }}">Mesures</a>
             <a href="{{ url_for('economies') }}">Économies</a>
             <a href="{{ url_for('configuration') }}">Configuration</a>
         </nav>
         <div class="account-menu">
             <img src="../../static/images/account-icon2.png" alt="Compte" class="account-icon">
+            <!-- Account Dropdown Menu -->
             <ul class="dropdown-menu">
                 <li><a href="{{ url_for('change_password') }}">Changer de mot de passe</a></li>
                 <li><a href="{{ url_for('logout') }}">Se déconnecter</a></li>
@@ -29,27 +33,27 @@
     </header>
 
     <div class="container">
+        <!-- Hero Section -->
         <section class="hero">
             <h2>Consommations récentes</h2>
             <p>Voici un aperçu de vos consommations récentes.</p>
         </section>
 
-        <!-- Graphique des consommations -->
+        <!-- Pie Chart: Overview of Total Consumption -->
         <h3>Consommation globale</h3>
         <section class="charts charts-row">
-            
+            <!-- Container for the pie chart -->
             <div id="pieChartContainer">
                 <canvas id="consommationPieChart"></canvas>
             </div>
-                    <!-- Graphiques détaillés -->
+
+            <!-- Hidden Detailed Chart Container (revealed when pie chart section is clicked) -->
             <section class="charts-container hidden" id="charts-container">
                 <canvas id="lineChart"></canvas>
             </section>
         </section>
 
-
-
-        <!-- Tableau des consommations -->
+        <!-- Consumption Table: Detailed Data -->
         <section class="consumption-table hidden" id="consumptionTable">
             <h3>Tableau détaillé des consommations</h3>
             <table>
@@ -61,11 +65,12 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Les lignes seront ajoutées dynamiquement -->
+                    <!-- Rows will be dynamically added here -->
                 </tbody>
             </table>
         </section>
 
+        <!-- Tips for Reducing Consumption -->
         <section class="consumption-tips">
             <h3>Conseils pour réduire la consommation</h3>
             <ul>
@@ -75,30 +80,31 @@
             </ul>
         </section>
 
+        <!-- Footer Section -->
         <footer class="footer">
             <p>© 2024 My Eco Pal House.</p>
         </footer>
 
         <script>
-            // Define units for each type of consumption
+            // Units for each type of consumption (used in chart tooltips)
             const units = {
                 electricity: 'kWh',
                 water: 'm³',
                 gas: 'm³',
                 internet: 'GB'
             };
-            
-            // Fetch consumption data
+
+            // Fetch and parse the consumption data passed from Flask to the template
             var consommations = {{ consommations | tojson }};
             console.log(consommations);
-            
-            // Calculate total consumptions for each type
+
+            // Calculate the total consumption for each type (electricity, water, gas, internet)
             var totalElectricity = consommations.electricity.reduce((sum, item) => sum + item.consommation, 0);
             var totalWater = consommations.water.reduce((sum, item) => sum + item.consommation, 0);
             var totalGas = consommations.gas.reduce((sum, item) => sum + item.consommation, 0);
             var totalInternet = consommations.internet.reduce((sum, item) => sum + item.consommation, 0);
-            
-            // Prepare data for the pie chart
+
+            // Prepare data for the pie chart showing the total consumption
             var consommationData = {
                 labels: ['Électricité', 'Eau', 'Gaz', 'Internet'],
                 datasets: [{
@@ -107,8 +113,8 @@
                     hoverBackgroundColor: ['#4bc0c0', '#36a2eb', '#ff6384', '#ffcc00']
                 }]
             };
-            
-            // Create the pie chart
+
+            // Create the pie chart for global consumption overview
             var consommationPieChart;
             window.onload = function () {
                 var ctx = document.getElementById('consommationPieChart').getContext('2d');
@@ -123,6 +129,7 @@
                             },
                             tooltip: {
                                 callbacks: {
+                                    // Display the tooltips with formatted labels
                                     label: function (tooltipItem) {
                                         const type = tooltipItem.label.toLowerCase();
                                         const unit = units[type];
@@ -132,6 +139,7 @@
                             }
                         },
                         onClick: (event, activeElements) => {
+                            // When a section of the pie chart is clicked, show detailed consumption data
                             if (activeElements.length > 0) {
                                 const index = activeElements[0].index;
                                 const consommationTypeMap = ['electricity', 'water', 'gas', 'internet'];
@@ -142,20 +150,21 @@
                     }
                 });
             };
-            
-            // Show detailed consumption data
+
+            // Function to display detailed consumption data and corresponding charts
             function showConsumptionDetails(consommationType) {
                 console.log("Type cliqué :", consommationType);
-            
+
                 // Show the table and detailed chart
                 document.getElementById('charts-container').classList.remove('hidden');
                 document.getElementById('consumptionTable').classList.remove('hidden');
-            
-                // Reset the table
+
+                // Reset the table content
                 var tableBody = document.getElementById('tableBody');
                 tableBody.innerHTML = '';
-                const unit = units[consommationType]; // Get the unit for the selected type
-            
+                const unit = units[consommationType]; // Get the correct unit for the selected type
+
+                // Loop through the selected type's data and populate the table
                 consommations[consommationType].forEach(function (entry) {
                     var row = document.createElement('tr');
                     row.innerHTML = `
@@ -165,31 +174,32 @@
                     `;
                     tableBody.appendChild(row);
                 });
-            
-                // Update the detailed chart
+
+                // Update the detailed chart based on the selected consumption type
                 showLineChart(consommationType, unit);
             }
-            
-            var lineChartInstance; // Store the line chart instance
-            
-            // Show the line chart for the selected consumption type
+
+            // Store the line chart instance to manage chart updates
+            var lineChartInstance;
+
+            // Function to render a line chart for the selected consumption type
             function showLineChart(consommationType, unit) {
                 var ctx = document.getElementById('lineChart').getContext('2d');
                 var labels = [];
                 var data = [];
-            
-                // Prepare data for the chart
+
+                // Prepare the data for the line chart based on the selected consumption type
                 consommations[consommationType].forEach(function (entry) {
                     labels.push(entry.date);
                     data.push(entry.consommation);
                 });
-            
-                // Destroy the previous chart instance if it exists
+
+                // Destroy the previous chart instance (if any) to prevent multiple charts on the same canvas
                 if (lineChartInstance) {
                     lineChartInstance.destroy();
                 }
-            
-                // Create a new chart
+
+                // Create the new line chart for the selected consumption type
                 lineChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
@@ -212,8 +222,9 @@
                     }
                 });
             }
-            </script>
-            
+        </script>
+
     </div>
 </body>
+
 </html>
