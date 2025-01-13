@@ -1698,7 +1698,26 @@ canvas {
 #addInvoiceBtn:hover {
     background-color: #004d40;
 }
+/* Delete Facture Button */
+#deleteFactureBtn {
+    width: fit-content;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #8b0000; /* Dark red with a brownish hue */
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px; /* Spacing between the two buttons */
+    margin-bottom: 20px;
+}
 
+#deleteFactureBtn:hover {
+    background-color: #5a0000; /* Even darker shade of red for hover */
+}
+#addInvoiceBtn, #deleteFactureBtn {
+    display: inline-block; /* Ensures buttons appear side-by-side */
+    margin-right: 10px; /* Adds spacing between buttons */
+}
 /* Formulaire d'ajout de facture */
 .invoice-form {
     display: none; /* Cacher par défaut */
@@ -1762,6 +1781,30 @@ canvas {
 #addCaptActBtn:hover {
     background-color: #004d40; /* Couleur de survol légèrement plus foncée */
 }
+
+#deleteCaptActBtn {
+    width: fit-content;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #8B0000; /* Rouge foncé proche du marron */
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#deleteCaptActBtn:hover {
+    background-color: #5C0000; /* Couleur de survol légèrement plus foncée */
+}
+
+#addCaptActBtn, #deleteCaptActBtn {
+    display: inline-block; /* Ensures buttons appear side-by-side */
+    margin-right: 10px; /* Adds spacing between buttons */
+}
+
 
 /* Formulaire d'ajout de Capteurs/Actionneurs */
 .capt-act-form {

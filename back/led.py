@@ -121,37 +121,55 @@ def latest_consumption():
 
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT logement_id FROM users WHERE id = ?", (user_id,))
-    logement_row = cursor.fetchone()
 
-    if logement_row is None:
-        return jsonify({'error': 'Logement introuvable'}), 404
+    try:
+        # Get the logement_id for the logged-in user
+        cursor.execute("SELECT logement_id FROM users WHERE id = ?", (user_id,))
+        logement_row = cursor.fetchone()
 
-    logement_id = logement_row[0]
-    date_filter = datetime.now().strftime('%Y-%m-%d')
+        if logement_row is None:
+            return jsonify({'error': 'Logement introuvable'}), 404
 
-    # Fetch the latest consumption for each type
-    cursor.execute("""
-        SELECT type, val_consommee, date_fact
-        FROM facture
-        WHERE logement_id = ? AND date_fact LIKE ?
-        GROUP BY type
-        ORDER BY date_fact DESC
-    """, (logement_id, f'{date_filter}%'))
+        logement_id = logement_row[0]
 
-    latest_consumptions = cursor.fetchall()
+        # Fetch the latest consumption for water, electricity, etc.
+        query = """
+            SELECT type, val_consommee, MAX(date_fact) AS latest_date
+            FROM facture
+            WHERE logement_id = ?
+            GROUP BY type
+        """
+        cursor.execute(query, (logement_id,))
+        latest_consumptions = cursor.fetchall()
 
-    # Format the results
-    consumption_data = {}
-    for type_conso, val_consommee, date_fact in latest_consumptions:
-        consumption_data[type_conso] = {
-            'date': date_fact,
-            'consumption': val_consommee
+        # Format the results
+        consumption_data = {
+            'water': None,
+            'electricity': None,
         }
 
-    conn.close()
-    return jsonify(consumption_data)
+        for type_conso, val_consommee, latest_date in latest_consumptions:
+            if type_conso == 'water':
+                consumption_data['water'] = {
+                    'date': latest_date,
+                    'consumption': val_consommee
+                }
+            elif type_conso == 'electricity':
+                consumption_data['electricity'] = {
+                    'date': latest_date,
+                    'consumption': val_consommee
+                }
 
+        conn.close()
+
+        # Return the consumption data
+        return jsonify(consumption_data)
+
+    except Exception as e:
+        print(f"Error in /api/latest-consumption: {e}")
+        conn.close()
+        return jsonify({'error': 'Internal Server Error'}), 500
+    
 @app.route('/factures/<int:id>', methods=['DELETE'])
 def supprimer_facture(id):
     try:
@@ -175,6 +193,108 @@ def supprimer_facture(id):
     finally:
         cursor.close()
         conn.close()
+
+@app.route('/get_factures', methods=['GET'])
+def get_factures():
+    try:
+        user_id = session.get('user_id')
+        if user_id is None:
+            return jsonify({"error": "User not logged in"}), 401
+
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        # Get logement_id for the user
+        cursor.execute("SELECT logement_id FROM users WHERE id = ?", (user_id,))
+        result = cursor.fetchone()
+        if result is None:
+            return jsonify({"error": "No logement found"}), 404
+
+        logement_id = result[0]
+
+        # Fetch factures for the logement
+        cursor.execute("""
+            SELECT ID, type, date_fact, montant, val_consommee 
+            FROM facture
+            WHERE logement_id = ?
+            ORDER BY date_fact DESC
+        """, (logement_id,))
+        data = cursor.fetchall()
+
+        conn.close()
+
+        # Transform the data for JSON
+        factures = []
+        for row in data:
+            factures.append({
+                "id": row[0],
+                "type": row[1],
+                "date_fact": row[2],
+                "montant": row[3],
+                "val_consommee": row[4]
+            })
+
+        return jsonify(factures)
+
+    except Exception as e:
+        print(f"Error in /get_factures: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
+
+@app.route('/get_facture_by_id', methods=['GET'])
+def get_facture_by_id():
+    try:
+        facture_id = request.args.get('id')
+        if not facture_id:
+            return jsonify({"error": "Facture ID not provided"}), 400
+
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        # Fetch facture details
+        cursor.execute("""
+            SELECT ID, type, date_fact, montant, val_consommee
+            FROM facture
+            WHERE ID = ?
+        """, (facture_id,))
+        row = cursor.fetchone()
+
+        conn.close()
+
+        if row is None:
+            return jsonify(None)  # No facture found
+
+        return jsonify({
+            "id": row[0],
+            "type": row[1],
+            "date_fact": row[2],
+            "montant": row[3],
+            "val_consommee": row[4]
+        })
+
+    except Exception as e:
+        print(f"Error in /get_facture_by_id: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
+
+@app.route('/delete_facture', methods=['DELETE'])
+def delete_facture():
+    try:
+        facture_id = request.args.get('id')
+        if not facture_id:
+            return jsonify({"error": "Facture ID not provided"}), 400
+
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        # Delete the facture
+        cursor.execute("DELETE FROM facture WHERE ID = ?", (facture_id,))
+        conn.commit()
+        conn.close()
+
+        return jsonify({"success": True}), 200
+
+    except Exception as e:
+        print(f"Error in /delete_facture: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
 
 @app.route('/capteurs', methods=['GET', 'POST'])
 def capteurs():
@@ -295,7 +415,7 @@ def logout():
 
 
 # Configuration MQTT
-MQTT_BROKER = "192.168.1.17" #"172.20.10.2" #"192.168.53.254" #"172.20.10.2"  #"192.168.125.254" #"192.168.11.114" # "192.168.125.254" #"192.168.137.254" #"192.168.1.16"#192.168.172.254"#"192.168.1.17" #"192.168.231.254" #"192.168.1.17" #"172.20.10.3"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
+MQTT_BROKER = "192.168.1.17" #"172.20.10.2" #"192.168.1.17" #"172.20.10.2" #"192.168.53.254" #"172.20.10.2"  #"192.168.125.254" #"192.168.11.114" # "192.168.125.254" #"192.168.137.254" #"192.168.1.16"#192.168.172.254"#"192.168.1.17" #"192.168.231.254" #"192.168.1.17" #"172.20.10.3"#"192.168.28.254" #"192.168.6.254"  # Adresse de ton broker MQTT
 MQTT_PORT = 1883  # Port par défaut de MQTT
 MQTT_TOPIC = "maison/capteurs/dht11"  # Topic pour recevoir les données de température et d'humidité
 LED_TOPIC = "maison/led"  # Topic pour envoyer des commandes pour allumer ou éteindre la LED
@@ -809,10 +929,12 @@ def get_rooms_and_capt_act():
             return jsonify({"error": "No logement found"}), 404
 
         logement_id = result[0]
+
         # Fetch rooms and their capt/act
         cursor.execute("""
             SELECT p.name AS room_name, p.ID AS room_id, 
-                   c.type AS capt_act_type, c.ref_commande AS capt_act_ref, c.etat AS capt_act_state
+                   c.ID AS capt_act_id, c.type AS capt_act_type, 
+                   c.ref_commande AS capt_act_ref, c.etat AS capt_act_state
             FROM piece p
             LEFT JOIN capt_act c ON p.ID = c.ref_piece
             WHERE p.logement_id = ?
@@ -827,9 +949,10 @@ def get_rooms_and_capt_act():
             rooms_with_capt_act.append({
                 "room_name": row[0],
                 "room_id": row[1],
-                "capt_act_type": row[2],
-                "capt_act_ref": row[3],
-                "capt_act_state": row[4]
+                "capt_act_id": row[2],
+                "capt_act_type": row[3],
+                "capt_act_ref": row[4],
+                "capt_act_state": row[5]
             })
 
         return jsonify(rooms_with_capt_act)
@@ -837,7 +960,69 @@ def get_rooms_and_capt_act():
     except Exception as e:
         print(f"Error in /get_rooms_and_capt_act: {e}")
         return jsonify({"error": "Internal Server Error"}), 500
-    
+
+@app.route('/get_capt_act_by_id', methods=['GET'])
+def get_capt_act_by_id():
+    try:
+        capt_act_id = request.args.get('id')
+
+        if not capt_act_id:
+            return jsonify({"error": "ID is required"}), 400
+
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT c.ID, c.type, c.ref_commande, p.name AS room_name
+            FROM capt_act c
+            LEFT JOIN piece p ON c.ref_piece = p.ID
+            WHERE c.ID = ?
+        """, (capt_act_id,))
+        result = cursor.fetchone()
+
+        conn.close()
+
+        if not result:
+            return jsonify(None), 404
+
+        capt_act = {
+            "id": result[0],
+            "type": result[1],
+            "ref_commande": result[2],
+            "room_name": result[3]
+        }
+
+        return jsonify(capt_act)
+
+    except Exception as e:
+        print(f"Error in /get_capt_act_by_id: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
+
+@app.route('/delete_capt_act', methods=['DELETE'])
+def delete_capt_act():
+    try:
+        capt_act_id = request.args.get('id')
+
+        if not capt_act_id:
+            return jsonify({"error": "ID is required"}), 400
+
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        # Delete the capt/act from the database
+        cursor.execute("DELETE FROM capt_act WHERE ID = ?", (capt_act_id,))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"error": "No capt/act found with this ID"}), 404
+
+        conn.close()
+
+        return jsonify({"message": "Capteur/Actionneur supprimé avec succès."}), 200
+
+    except Exception as e:
+        print(f"Error in /delete_capt_act: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
 
 @app.route('/get_measures', methods=['GET'])
 def get_measures():

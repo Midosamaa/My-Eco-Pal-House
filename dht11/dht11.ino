@@ -9,9 +9,9 @@
 
 DHT dht(DHTPIN, DHTTYPE);
 
-const char* ssid = "Livebox-C3F0";        // Ton SSID Wi-Fi
-const char* password = "JsqZJseQz7eemhfVcH"; // Ton mot de passe Wi-Fi
-const char* mqtt_server = "192.168.1.17"; // Adresse de ton broker MQTT
+const char* ssid = "iPhone de Aymane";        // Ton SSID Wi-Fi
+const char* password = "12345678"; // Ton mot de passe Wi-Fi
+const char* mqtt_server = "172.20.10.2"; // Adresse de ton broker MQTT
 
 WiFiClient espClient;
 PubSubClient client(espClient);

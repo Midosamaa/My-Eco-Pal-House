@@ -38,7 +38,27 @@
     <!-- Section Factures -->
     <section class="factures">
         <h3>Factures</h3>
+
+        <!-- Table for displaying factures -->
+        <div id="facturesTableContainer">
+            <table id="facturesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Montant (€)</th>
+                        <th>Valeur Consommée</th>
+                    </tr>
+                </thead>
+                <tbody id="facturesTableBody">
+                    <!-- Factures data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
         <button id="addInvoiceBtn" class="btn">Ajouter une Facture</button>
+        <button id="deleteFactureBtn" class="btn">Supprimer une Facture</button>
         
         <div id="invoiceForm" class="invoice-form" style="display: none;">
             <form action="{{ url_for('add_facture') }}" method="POST" id="factureForm">
@@ -69,8 +89,10 @@
                     <tr>
                         <th>Pièce</th>
                         <th>Référence Pièce</th>
+                        <th>ID Capt/Act</th>
                         <th>Type Capt/Act</th>
                         <th>Référence Capt/Act</th>
+                        <th>État Capt/Act</th>
                     </tr>
                 </thead>
                 <tbody id="roomsCaptActTableBody"></tbody>
@@ -79,6 +101,8 @@
         
         <!-- Button to open form -->
         <button id="addCaptActBtn" class="btn">Ajouter un nouveau Capt/Act</button>
+        <button id="deleteCaptActBtn">Supprimer un Capt/Act</button>
+
 
         <!-- Form to add new capt/act -->
         <div id="addCaptActForm" class="invoice-form" style="display: none;">
@@ -150,7 +174,87 @@
 
         // Fetch Rooms and Captors from API
         function fetchRoomsAndCaptAct() {
-            fetch('http://127.0.0.1:5000/get_rooms_and_capt_act')
+    fetch('/get_rooms_and_capt_act')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const tableBody = document.getElementById('roomsCaptActTableBody');
+            tableBody.innerHTML = ''; // Clear any existing rows
+
+            data.forEach(room => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${room.room_name}</td>
+                    <td>${room.room_id}</td>
+                    <td>${room.capt_act_id || '-'}</td>
+                    <td>${room.capt_act_type || '-'}</td>
+                    <td>${room.capt_act_ref || '-'}</td>
+                    <td>${room.capt_act_state || '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des données :', error);
+        });
+}
+document.getElementById('deleteCaptActBtn').addEventListener('click', function () {
+    const captActId = prompt("Veuillez entrer l'ID du capteur/actionneur que vous souhaitez supprimer:");
+
+    if (!captActId) {
+        alert('Suppression annulée : aucun ID fourni.');
+        return;
+    }
+
+    // Fetch capt/act details for confirmation
+    fetch(`/get_capt_act_by_id?id=${captActId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(captAct => {
+            if (!captAct) {
+                alert('Aucun capteur/actionneur trouvé avec cet ID.');
+                return;
+            }
+
+            const confirmation = confirm(
+                `Êtes-vous sûr de vouloir supprimer le capteur/actionneur de type "${captAct.type}" (Référence : ${captAct.ref_commande}) dans la pièce "${captAct.room_name}" ?`
+            );
+
+            if (confirmation) {
+                // Send a DELETE request to the server
+                fetch(`/delete_capt_act?id=${captActId}`, { method: 'DELETE' })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erreur HTTP: ${response.status}`);
+                        }
+                        alert('Capteur/Actionneur supprimé avec succès !');
+                        fetchRoomsAndCaptAct(); // Refresh the table
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors de la suppression :', error);
+                        alert('Erreur lors de la suppression du capteur/actionneur.');
+                    });
+            } else {
+                alert('Suppression annulée.');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la récupération des détails du capteur/actionneur :', error);
+            alert('Erreur lors de la récupération des détails du capteur/actionneur.');
+        });
+});
+
+        // Fetch and display factures
+        function fetchFactures() {
+            fetch('/get_factures')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`Erreur HTTP: ${response.status}`);
@@ -158,22 +262,78 @@
                     return response.json();
                 })
                 .then(data => {
-                    const tableBody = document.getElementById('roomsCaptActTableBody');
-                    data.forEach(room => {
+                    const tableBody = document.getElementById('facturesTableBody');
+                    tableBody.innerHTML = ''; // Clear any existing rows
+
+                    data.forEach(facture => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${room.room_name}</td>
-                            <td>${room.room_id}</td>
-                            <td>${room.capt_act_type || '-'}</td>
-                            <td>${room.capt_act_ref || '-'}</td>
+                            <td>${facture.id}</td>
+                            <td>${facture.type}</td>
+                            <td>${facture.date_fact}</td>
+                            <td>${facture.montant.toFixed(2)}</td>
+                            <td>${facture.val_consommee.toFixed(2)}</td>
                         `;
                         tableBody.appendChild(row);
                     });
                 })
                 .catch(error => {
-                    console.error('Erreur lors du chargement des données :', error);
+                    console.error('Erreur lors du chargement des factures :', error);
                 });
         }
+
+        // Initialize the page by fetching factures
+        document.addEventListener('DOMContentLoaded', fetchFactures);
+
+        document.getElementById('deleteFactureBtn').addEventListener('click', function () {
+            const factureId = prompt('Veuillez entrer l\'ID de la facture que vous souhaitez supprimer:');
+            
+            if (!factureId) {
+                alert('Suppression annulée: aucun ID fourni.');
+                return;
+            }
+            
+            // Fetch the facture details for confirmation
+            fetch(`/get_facture_by_id?id=${factureId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(facture => {
+                    if (!facture) {
+                        alert('Aucune facture trouvée avec cet ID.');
+                        return;
+                    }
+
+                    const confirmation = confirm(
+                        `Êtes-vous sûr de vouloir supprimer la facture de ${facture.type} datant du ${facture.date_fact} de ${facture.montant.toFixed(2)} € avec une consommation de ${facture.val_consommee.toFixed(2)} ?`
+                    );
+
+                    if (confirmation) {
+                        // Send a DELETE request to the server
+                        fetch(`/delete_facture?id=${factureId}`, { method: 'DELETE' })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Erreur HTTP: ${response.status}`);
+                                }
+                                alert('Facture supprimée avec succès !');
+                                fetchFactures(); // Refresh the table
+                            })
+                            .catch(error => {
+                                console.error('Erreur lors de la suppression :', error);
+                                alert('Erreur lors de la suppression de la facture.');
+                            });
+                    } else {
+                        alert('Suppression annulée.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des détails de la facture :', error);
+                    alert('Erreur lors de la récupération des détails de la facture.');
+                });
+        });
 
         // Call the function to fetch and display room data
         fetchRoomsAndCaptAct();
